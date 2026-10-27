@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SIP Console</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a84c6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SIP Console">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ===================== THEME VARIABLE SETS ===================== */
+:root, :root[data-theme="light"]{
+  --bg:#f1f4f9; --card:#ffffff; --soft:#eff3f8; --border:#e6ebf2;
+  --ink:#0d1626; --muted:#5f6b80; --faint:#98a2b3;
+  --accent:#dc7500; --accent-soft:#fff6ea; --accent-line:#f6d4a3; --accent-track:#f7e2c6; --accent-text-on:#2b1400;
+  --green:#03835c; --green-soft:#effbf6; --green-line:#b3e6cf; --green-track:#cfeee0;
+  --red:#d92d20; --red-soft:#fef2f2; --red-line:#f3c6c2;
+  --hero1:#182437; --hero2:#0d1626; --hero-text:#ffffff; --hero-muted:rgba(255,255,255,0.55); --hero-accent:#fcbf5d;
+  --btn-text:#ffffff;
+  --shadow:0 10px 28px rgba(13,22,38,0.14);
+}
+:root[data-theme="midnight"]{
+  --bg:#0a0f1a; --card:#121a29; --soft:#1a2436; --border:#232f45;
+  --ink:#f4f7fb; --muted:#8b98ae; --faint:#5c6a84;
+  --accent:#f5a623; --accent-soft:rgba(245,166,35,0.12); --accent-line:rgba(245,166,35,0.4); --accent-track:rgba(245,166,35,0.18); --accent-text-on:#2b1a05;
+  --green:#34d399; --green-soft:rgba(52,211,153,0.1); --green-line:rgba(52,211,153,0.35); --green-track:rgba(52,211,153,0.18);
+  --red:#f87171; --red-soft:rgba(248,113,113,0.1); --red-line:rgba(248,113,113,0.4);
+  --hero1:#241a0a; --hero2:#121a29; --hero-text:#f4f7fb; --hero-muted:rgba(244,247,251,0.5); --hero-accent:#f5a623;
+  --btn-text:#0a0f1a;
+  --shadow:0 10px 28px rgba(0,0,0,0.45);
+}
+:root[data-theme="indigo"]{
+  --bg:#0a0b17; --card:#141329; --soft:#1c1a3d; --border:#2c2960;
+  --ink:#f2f3fc; --muted:#938fc4; --faint:#585290;
+  --accent:#22d3ee; --accent-soft:rgba(34,211,238,0.12); --accent-line:rgba(34,211,238,0.4); --accent-track:rgba(34,211,238,0.18); --accent-text-on:#052024;
+  --green:#34d399; --green-soft:rgba(52,211,153,0.1); --green-line:rgba(52,211,153,0.35); --green-track:rgba(52,211,153,0.18);
+  --red:#fb7185; --red-soft:rgba(251,113,133,0.1); --red-line:rgba(251,113,133,0.4);
+  --hero1:#241b52; --hero2:#141329; --hero-text:#f2f3fc; --hero-muted:rgba(242,243,252,0.5); --hero-accent:#67e8f9;
+  --btn-text:#0a0b17;
+  --shadow:0 10px 28px rgba(0,0,0,0.5);
+}
+:root[data-theme="rose"]{
+  --bg:#170d1c; --card:#271a2e; --soft:#32213b; --border:#452c4f;
+  --ink:#fdf4ee; --muted:#bb9ab0; --faint:#755a75;
+  --accent:#fb923c; --accent-soft:rgba(251,146,60,0.12); --accent-line:rgba(251,146,60,0.4); --accent-track:rgba(251,146,60,0.18); --accent-text-on:#3a1a05;
+  --green:#f472b6; --green-soft:rgba(244,114,182,0.12); --green-line:rgba(244,114,182,0.4); --green-track:rgba(244,114,182,0.18);
+  --red:#f87171; --red-soft:rgba(248,113,113,0.1); --red-line:rgba(248,113,113,0.4);
+  --hero1:#4a1942; --hero2:#271a2e; --hero-text:#fdf4ee; --hero-muted:rgba(253,244,238,0.55); --hero-accent:#fdba74;
+  --btn-text:#170d1c;
+  --shadow:0 10px 28px rgba(0,0,0,0.45);
+}
+:root[data-theme="fresh"]{
+  --bg:#eef6f9; --card:#ffffff; --soft:#e7f1f5; --border:#d6e5ec;
+  --ink:#0b2230; --muted:#51697a; --faint:#8fa5b3;
+  --accent:#0a84c6; --accent-soft:#e6f4fc; --accent-line:#a5d3ee; --accent-track:#cde7f6; --accent-text-on:#ffffff;
+  --green:#16a05a; --green-soft:#ebf8f1; --green-line:#a9e0c3; --green-track:#cdeedb;
+  --red:#d92d20; --red-soft:#fef2f2; --red-line:#f3c6c2;
+  --hero1:#0d5a86; --hero2:#083552; --hero-text:#ffffff; --hero-muted:rgba(255,255,255,0.62); --hero-accent:#8fd8ff;
+  --btn-text:#ffffff;
+  --shadow:0 10px 28px rgba(8,53,82,0.16);
+}
+:root[data-theme="ocean"]{
+  --bg:#06101c; --card:#0d1b2d; --soft:#13263c; --border:#1b3652;
+  --ink:#eaf3fb; --muted:#8aa6c3; --faint:#557290;
+  --accent:#5aa9ff; --accent-soft:rgba(90,169,255,0.12); --accent-line:rgba(90,169,255,0.42); --accent-track:rgba(90,169,255,0.2); --accent-text-on:#04132a;
+  --green:#3ddc97; --green-soft:rgba(61,220,151,0.1); --green-line:rgba(61,220,151,0.35); --green-track:rgba(61,220,151,0.18);
+  --red:#ff7a8a; --red-soft:rgba(255,122,138,0.1); --red-line:rgba(255,122,138,0.4);
+  --hero1:#0f3d73; --hero2:#0d1b2d; --hero-text:#eaf3fb; --hero-muted:rgba(234,243,251,0.55); --hero-accent:#8cc4ff;
+  --btn-text:#06101c;
+  --shadow:0 10px 28px rgba(0,0,0,0.5);
+}
+/* Graphite: neutral charcoal + lime */
+:root[data-theme="graphite"]{
+  --bg:#0d0e11; --card:#16181d; --soft:#1e2127; --border:#2a2e36;
+  --ink:#f3f4f6; --muted:#9aa1ad; --faint:#626976;
+  --accent:#a3e635; --accent-soft:rgba(163,230,53,0.1); --accent-line:rgba(163,230,53,0.38); --accent-track:rgba(163,230,53,0.18); --accent-text-on:#1a2503;
+  --green:#2dd4bf; --green-soft:rgba(45,212,191,0.1); --green-line:rgba(45,212,191,0.35); --green-track:rgba(45,212,191,0.18);
+  --red:#fb7185; --red-soft:rgba(251,113,133,0.1); --red-line:rgba(251,113,133,0.4);
+  --hero1:#26301a; --hero2:#16181d; --hero-text:#f3f4f6; --hero-muted:rgba(243,244,246,0.5); --hero-accent:#bef264;
+  --btn-text:#0d0e11;
+  --shadow:0 10px 28px rgba(0,0,0,0.5);
+}
+/* Sand: warm paper light + terracotta */
+:root[data-theme="sand"]{
+  --bg:#f5efe6; --card:#fffdfa; --soft:#efe7da; --border:#e3d8c6;
+  --ink:#2a2118; --muted:#6e6253; --faint:#a39683;
+  --accent:#c2570c; --accent-soft:#fdf0e3; --accent-line:#f0c79f; --accent-track:#f6dcc1; --accent-text-on:#ffffff;
+  --green:#3f7d4e; --green-soft:#eef6ef; --green-line:#b9d9bf; --green-track:#d5e8d8;
+  --red:#c62828; --red-soft:#fdeeee; --red-line:#f1c2c2;
+  --hero1:#5a3a22; --hero2:#2f1e12; --hero-text:#fff8ef; --hero-muted:rgba(255,248,239,0.6); --hero-accent:#f5b878;
+  --btn-text:#ffffff;
+  --shadow:0 10px 28px rgba(60,40,20,0.16);
+}
+:root{ --ph-r:#e0524f; --ph-y:#d99000; --ph-b:#3b82f6; }
+:root{ --st-yellow:#eab308; --st-yellow-soft:rgba(234,179,8,0.14); --st-yellow-line:rgba(234,179,8,0.45); }
+
+*{box-sizing:border-box;}
+body{font-family:'Inter',Arial,sans-serif;background:var(--bg);color:var(--ink);margin:0;-webkit-font-smoothing:antialiased;transition:background .25s ease,color .25s ease;}
+
+/* ---------- login ---------- */
+#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0a1128 0%,#0d1626 65%);z-index:9999;display:flex;align-items:center;justify-content:center;}
+.login-card{background:#131c33;border:1px solid #1f2b47;padding:38px 28px;border-radius:22px;width:88%;max-width:340px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.55);position:relative;overflow:hidden;}
+.login-card::before{content:'';position:absolute;top:-90px;left:50%;transform:translateX(-50%);width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,#3b82f6 0%,transparent 70%);opacity:0.28;pointer-events:none;}
+.login-card i{font-size:36px;color:#60a5fa;margin-bottom:14px;position:relative;filter:drop-shadow(0 0 14px rgba(96,165,250,0.5));}
+.login-card h2{margin:0 0 4px;font-size:21px;font-weight:800;color:#fff;position:relative;}
+.login-card p{font-size:12.5px;color:#8b98ae;margin-bottom:24px;position:relative;}
+.login-card input{font-size:14px;font-weight:600;padding:13px;background:rgba(255,255,255,0.05);border:1px solid #24314f;color:#fff;border-radius:10px;width:100%;box-sizing:border-box;margin-bottom:12px;position:relative;transition:border-color .15s ease;}
+.login-card input:focus{outline:none;border-color:#3b82f6;}
+.btn-login{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:14px;width:100%;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 10px 24px rgba(37,99,235,0.35);position:relative;}
+.btn-login:active{transform:scale(0.98);}
+#login-error{color:#f87171;font-size:12.5px;font-weight:600;margin-top:13px;display:none;position:relative;}
+
+/* ---------- header ---------- */
+#main-app{display:none;padding-bottom:110px;}
+.header{padding:18px 20px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.brand{display:flex;align-items:flex-start;gap:10px;min-width:0;flex:1;}
+.brand-mark{width:36px;height:36px;border-radius:12px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+:root[data-theme="light"] .brand-mark{background:var(--ink);}
+:root:not([data-theme="light"]) .brand-mark{background:var(--accent);}
+.brand-mark svg{stroke:var(--bg);}
+:root[data-theme="light"] .brand-mark svg{stroke:#fff;}
+.brand-txt{min-width:0;}
+.brand-txt .t{font-size:16px;font-weight:800;letter-spacing:-0.3px;line-height:1.1;}
+.brand-txt .s{font-size:10.5px;color:var(--faint);font-weight:500;margin-top:2px;}
+.brand-txt .wl{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:0.3px;flex-wrap:wrap;row-gap:2px;}
+.brand-txt .wl i{font-size:10px;flex-shrink:0;}
+.brand-txt .wl .wl-sep{color:var(--faint);font-weight:400;}
+#weather-location{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
+#weather-wind{white-space:nowrap;}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:56%;}
+.theme-btn.hchip{cursor:pointer;color:var(--muted);background:var(--soft);border-color:var(--border);}
+.theme-btn.hchip:active{transform:scale(0.95);}
+.hchip{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:var(--green);background:var(--green-soft);padding:7px 11px;border-radius:20px;border:1px solid var(--green-line);white-space:nowrap;}
+.hchip.off{color:var(--red);background:var(--red-soft);border-color:var(--red-line);}
+.hchip.off-dim{color:var(--faint);background:var(--soft);border-color:var(--border);}
+.hchip.wifi-good{color:var(--green) !important;background:var(--green-soft) !important;border-color:var(--green-line) !important;}
+.hchip.wifi-mid{color:var(--accent) !important;background:var(--accent-soft) !important;border-color:var(--accent-line) !important;}
+.hchip.wifi-weak{color:var(--red) !important;background:var(--red-soft) !important;border-color:var(--red-line) !important;}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.container{padding:0 20px 16px;}
+
+/* ---------- recovery banner ---------- */
+.recovery{display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:14px;padding:11px 14px;margin-bottom:14px;font-size:11.5px;color:var(--accent);font-weight:600;}
+.recovery .sw{flex-shrink:0;}
+
+/* ---------- hero ---------- */
+.hero{background:linear-gradient(150deg,var(--hero1) 0%,var(--hero2) 60%);border-radius:24px;padding:18px 20px 17px;color:var(--hero-text);position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.hero::before{content:'';position:absolute;right:-90px;top:-110px;width:270px;height:270px;border-radius:50%;background:radial-gradient(circle,var(--hero-accent) 0%,transparent 68%);opacity:0.28;}
+.h-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;position:relative;}
+.h-eyebrow{display:flex;align-items:center;gap:7px;font-size:9.5px;font-weight:800;color:var(--hero-accent);text-transform:uppercase;letter-spacing:1px;}
+.h-eyebrow .dot{background:var(--hero-accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--hero-accent) 30%, transparent);}
+.h-zone{font-size:9.5px;color:var(--hero-muted);font-weight:600;font-family:'JetBrains Mono',monospace;margin-top:9px;letter-spacing:0.4px;}
+.h-name{font-size:21px;font-weight:800;letter-spacing:-0.45px;margin:2px 0 9px;line-height:1.2;}
+.h-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.h-tag{display:flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;padding:4px 8px;border-radius:7px;background:rgba(255,255,255,0.10);color:var(--hero-muted);}
+.h-tag.live{background:color-mix(in srgb, var(--hero-accent) 18%, transparent);color:var(--hero-accent);}
+.mini-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.ring-w{position:relative;width:64px;height:64px;flex-shrink:0;}
+.ring-w svg{transform:rotate(-90deg);}
+.ring-w circle{transition:stroke-dashoffset 1s linear;}
+.ring-t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-t .p{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--hero-accent);line-height:1;}
+.ring-t .q{font-size:7.5px;color:var(--hero-muted);text-transform:uppercase;letter-spacing:0.6px;margin-top:3px;font-weight:700;}
+.h-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:15px;padding-top:13px;border-top:1px solid rgba(255,255,255,0.12);position:relative;}
+.h-time{font-size:27px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1.2px;line-height:1;}
+.h-time span{font-size:9.5px;color:var(--hero-muted);font-weight:600;font-family:'Inter';margin-left:6px;letter-spacing:0;text-transform:uppercase;}
+.h-next{text-align:right;}
+.h-next .l{font-size:8.5px;color:var(--hero-muted);text-transform:uppercase;letter-spacing:0.7px;font-weight:700;}
+.h-next .v{font-size:11.5px;font-weight:600;margin-top:3px;color:var(--hero-text);}
+.hero.standby{padding:18px;}
+.hero.standby .sb-title{font-size:11px;font-weight:800;color:var(--hero-accent);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:7px;}
+.hero.standby .sb-sub{font-size:16px;font-weight:700;margin-top:8px;color:var(--hero-text);}
+.hero.standby .sb-desc{font-size:11.5px;color:var(--hero-muted);margin-top:4px;}
+
+/* ---------- 3-phase panel ---------- */
+.power{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:0;margin:14px 0 18px;overflow:hidden;}
+.pw-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid var(--border);}
+.pw-head .t{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.85px;display:flex;align-items:center;gap:7px;}
+.pw-ok{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;color:var(--green);background:var(--green-soft);border:1px solid var(--green-line);padding:4px 9px;border-radius:20px;letter-spacing:0.3px;white-space:nowrap;}
+.pw-ok.bad{color:var(--red);background:var(--red-soft);border-color:var(--red-line);}
+.pw-status{font-size:9px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+.telemetry-row{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:14px 12px;}
+.tbox{background:var(--soft);border:1px solid var(--border);border-left:4px solid transparent;border-radius:14px;padding:12px 13px;min-width:0;}
+.tbox-lbl{font-size:9.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;}
+.tbox-val{font-size:19px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-top:8px;letter-spacing:-0.5px;white-space:nowrap;}
+.tbox-val small{font-size:9px;font-weight:600;color:var(--faint);}
+.tbox-bar{height:3px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden;position:relative;}
+.tbox-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;width:0%;transition:width .6s ease;}
+.tbox-bar .lim{display:none;}
+.amp-bar{height:4px;background:var(--soft);border-radius:4px;margin-top:8px;position:relative;overflow:hidden;}
+.amp-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--accent);width:0%;transition:width .6s ease;}
+.amp-bar .lim,.ph-track .lim{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--red);opacity:0.6;left:83%;}
+
+/* ---------- sections & rows ---------- */
+.sec{display:flex;justify-content:space-between;align-items:center;margin:0 2px 9px;}
+.sec h3{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.85px;margin:0;}
+.sec .c{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--faint);background:var(--soft);padding:4px 9px;border-radius:20px;font-weight:700;}
+.list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.row{display:flex;flex-wrap:wrap;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px;}
+.row.on{border-color:var(--accent-line);background:var(--accent-soft);}
+.row.zone-hidden{display:none !important;}
+.ic{order:1;width:32px;height:32px;border-radius:10px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--faint);flex-shrink:0;}
+.ic svg{width:14px;height:14px;}
+.row.on .ic{background:var(--accent-line);color:var(--accent);}
+.bd{order:3;flex-basis:100%;width:100%;min-width:0;margin-top:11px;}
+.nm-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.nm{font-size:13px;font-weight:700;letter-spacing:-0.1px;white-space:normal;overflow:hidden;text-overflow:ellipsis;}
+.pin{font-size:7.5px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--faint);background:var(--soft);padding:1.5px 4px;border-radius:4px;flex-shrink:0;}
+.row.on .pin{background:var(--accent-line);color:var(--accent);}
+.st{font-size:9.5px;color:var(--faint);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;}
+.row.on .st{color:var(--accent);font-weight:700;}
+.pb{height:3px;background:var(--accent-track);border-radius:3px;overflow:hidden;margin-top:9px;display:none;}
+.row.on .pb{display:block;}
+.pf{height:100%;background:var(--accent);border-radius:4px;width:0%;}
+.right-col{order:2;margin-left:auto;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:4px;flex-shrink:0;}
+.tleft{font-size:9.5px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--accent);}
+.sw{width:38px;height:22px;border-radius:20px;background:var(--border);position:relative;flex-shrink:0;cursor:pointer;}
+.sw.on{background:var(--accent);}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.25);transition:left .2s;}
+.sw.on::after{left:18px;}
+.sw.disabled{opacity:0.45;cursor:not-allowed;}
+.row.fert.on{border-color:var(--green-line);background:var(--green-soft);}
+.row.fert.on .ic{background:var(--green-line);color:var(--green);}
+.row.fert.on .st,.row.fert.on .tleft{color:var(--green);}
+.row.fert.on .pin{background:var(--green-line);color:var(--green);}
+.row.fert .pb{background:var(--green-track);}
+.row.fert .pf{background:var(--green);}
+.sw.on.fert{background:var(--green);}
+
+/* zone/fert status highlighting inside each card */
+.row.zone-active{border-color:var(--st-yellow-line) !important;background:var(--st-yellow-soft) !important;}
+.row.zone-active .ic{background:var(--st-yellow-line) !important;color:var(--st-yellow) !important;}
+.row.zone-active .st,.row.zone-active .tleft{color:var(--st-yellow) !important;}
+.row.zone-active .pin{background:var(--st-yellow-line) !important;color:var(--st-yellow) !important;}
+.row.zone-active .pf{background:var(--st-yellow) !important;}
+.row.zone-active .pb{background:var(--st-yellow-soft) !important;}
+
+.row.zone-next{border-color:var(--st-yellow-line);background:var(--st-yellow-soft);}
+.row.zone-next .ic{background:var(--st-yellow-line);color:var(--st-yellow);}
+.row.zone-next .st{color:var(--st-yellow);font-weight:700;}
+.row.zone-next .pin{background:var(--st-yellow-line);color:var(--st-yellow);}
+
+/* ---------- bottom bar ---------- */
+.bar-btm{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);display:flex;gap:10px;padding:14px 20px;z-index:100;}
+.btn{flex:1;background:var(--ink);color:var(--bg);border:none;padding:16px;border-radius:16px;font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:var(--shadow);}
+:root[data-theme="light"] .btn{color:#fff;}
+:root:not([data-theme="light"]) .btn{background:var(--accent);color:var(--accent-text-on);}
+.btn-x{width:54px;height:54px;border-radius:16px;background:var(--red-soft);border:1px solid var(--red-line);color:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ---------- modals ---------- */
+.modal{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;overflow-y:auto;}
+.modal-header{background:var(--card);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;border-bottom:1px solid var(--border);z-index:10;}
+.modal-header h2{margin:0;font-size:18px;font-weight:800;color:var(--ink);}
+.close-btn{background:var(--soft);border:1px solid var(--border);padding:9px 15px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--ink);font-size:13px;}
+.save-btn-top{background:var(--ink);color:var(--bg);border:none;padding:9px 16px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+:root[data-theme="light"] .save-btn-top{color:#fff;}
+:root:not([data-theme="light"]) .save-btn-top{background:var(--accent);color:var(--accent-text-on);}
+
+.tab-bar{display:flex;gap:6px;background:var(--soft);border:1px solid var(--border);border-radius:13px;padding:5px;margin:16px 0 20px;overflow-x:auto;}
+.tab-btn{flex:1;white-space:nowrap;background:transparent;border:none;color:var(--muted);font-size:11.5px;font-weight:700;padding:10px 10px;border-radius:9px;cursor:pointer;}
+.tab-btn.on{background:var(--card);color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+.tab-panel{display:none;}
+.tab-panel.on{display:block;}
+
+.setup-card{background:var(--card);border:1px solid var(--border);padding:18px;border-radius:16px;margin-bottom:18px;}
+.setup-card h3{margin-top:0;font-size:14px;font-weight:800;border-bottom:1px solid var(--border);padding-bottom:11px;margin-bottom:15px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.input-group{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;background:var(--soft);padding:11px 13px;border-radius:11px;border:1px solid var(--border);}
+.input-group span{font-size:12.5px;font-weight:600;color:var(--ink);}
+input[type="time"],input[type="number"],input[type="text"],input[type="email"],input[type="password"],select{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:10px;background:var(--card);border:1px solid var(--border);color:var(--ink);border-radius:8px;width:100%;box-sizing:border-box;}
+.day-selector{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.day-pill{padding:7px 11px;background:var(--soft);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);}
+.day-checkbox{display:none;}
+.day-checkbox:checked + .day-pill{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line);}
+.day-checkbox.fert-cb:checked + .day-pill{background:var(--green-soft);color:var(--green);border-color:var(--green-line);}
+.day-checkbox.rm-cb:checked + .day-pill{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line);}
+
+.schedule-card{background:var(--card);padding:16px;border-radius:14px;margin-bottom:12px;border:1px solid var(--border);border-left:4px solid var(--accent);}
+.schedule-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.schedule-info h4{margin:0;font-size:16px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ink);}
+.schedule-info p{margin:0 0 4px;font-size:12.5px;color:var(--muted);}
+.action-btns{margin-top:12px;display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px;}
+.action-btns button{flex:1;padding:9px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:12px;}
+.btn-delete{background:var(--red-soft);color:var(--red);border:1px solid var(--red-line);}
+.btn-edit{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);}
+.btn-create{background:var(--ink);color:var(--bg);border:none;padding:15px;width:100%;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;margin-bottom:20px;}
+:root[data-theme="light"] .btn-create{color:#fff;}
+:root:not([data-theme="light"]) .btn-create{background:var(--accent);color:var(--accent-text-on);}
+
+.zone-setup{background:var(--soft);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:16px;}
+.zone-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;font-weight:800;font-size:14px;color:var(--ink);}
+.fert-row{background:var(--card);border:1px dashed var(--border);padding:13px 42px 13px 13px;border-radius:9px;margin-bottom:9px;position:relative;}
+.remove-fert{position:absolute;top:11px;right:11px;color:var(--red);cursor:pointer;background:var(--red-soft);border:none;font-size:13px;height:24px;width:24px;border-radius:6px;}
+.fert-row select{padding:9px;border-radius:8px;background:var(--soft);color:var(--ink);border:1px solid var(--border);margin-right:8px;font-size:13px;font-weight:600;}
+.btn-add-fert{background:transparent;color:var(--accent);border:1px dashed var(--accent-line);padding:11px;width:100%;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;}
+
+.label-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.label-row input[type="text"]{flex:1;}
+.label-hint{font-size:11px;color:var(--faint);margin-top:-6px;margin-bottom:14px;}
+.loc-suggestion-item{padding:11px 13px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--border);}
+.loc-suggestion-item:last-child{border-bottom:none;}
+.loc-suggestion-item:active{background:var(--soft);}
+.loc-suggestion-item.muted{color:var(--faint);cursor:default;font-weight:500;}
+
+.overlay{display:none;align-items:center;justify-content:center;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;}
+.mini-modal{background:#151f36;border:1px solid #232f45;width:90%;max-width:340px;padding:24px;border-radius:18px;color:#fff;}
+.mini-modal h3{margin-top:0;font-size:17px;font-weight:800;text-align:center;}
+.mini-modal p{font-size:12.5px;color:#8b98ae;margin-bottom:18px;text-align:center;}
+.mini-modal input[type="number"],.mini-modal input[type="text"]{background:rgba(0,0,0,0.25);border-color:#232f45;color:#fff;text-align:center;margin:0 auto 18px;display:block;width:70%;-webkit-appearance:none;-moz-appearance:textfield;appearance:none;}
+.mini-modal input[type="number"]::-webkit-outer-spin-button,.mini-modal input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.mini-modal .center-wrap{display:flex;justify-content:center;}
+.mini-modal-btns{display:flex;gap:9px;}
+.mini-modal-btns button{flex:1;padding:13px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
+.btn-cancel{background:#232f45;color:#fff;}
+.btn-confirm{background:#f5a623;color:#221500;}
+#criticalAlertOverlay .mini-modal{border-color:#f87171;}
+#criticalAlertOverlay h3{color:#f87171;}
+#criticalAlertOverlay .btn-confirm{background:#f87171;color:#2b0a0a;}
+#autoRecoveryOverlay .mini-modal{border-color:#f5a623;}
+#autoRecoveryOverlay h3{color:#f5a623;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <i class="fa-solid fa-shield-halved"></i>
+    <h2>SIP Console</h2>
+    <p>Restricted access. Please authenticate.</p>
+    <input type="email" id="login-email" placeholder="Email Address">
+    <input type="password" id="login-pass" placeholder="Password">
+    <button class="btn-login" onclick="loginUser()"><i class="fa-solid fa-lock-open"></i> Access Console</button>
+    <div id="login-error">Invalid credentials.</div>
+  </div>
+</div>
+
+<div id="main-app">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M12 2C8 8 5 11.5 5 15a7 7 0 0014 0c0-3.5-3-7-7-13z"/></svg></div>
+      <div class="brand-txt"><div class="t">SIP Console</div><div class="s" id="sys-clock">--:--:--</div><div class="wl" id="weather-loc-line"><i class="fa-solid fa-sun" id="weather-icon" style="color:var(--accent);"></i><span id="weather-temp">--&deg;C</span><span class="wl-sep">&middot;</span><span id="weather-wind"><i class="fa-solid fa-wind" style="font-size:8px;"></i> -- km/h</span><span class="wl-sep">&middot;</span><span id="weather-location">Location not set</span></div></div>
+    </div>
+    <div class="header-right">
+      <div class="hchip" id="wifi-display" style="min-width:0;"><i class="fa-solid fa-wifi" style="font-size:10px;"></i><span>-- dBm</span></div>
+      <button class="hchip theme-btn" onclick="cycleTheme()" title="Switch theme"><i class="fa-solid fa-palette"></i><span id="theme-name-label">Light</span></button>
+      <div class="hchip status-offline" id="heartbeat-display"><div class="dot"></div>OFFLINE</div>
+      <div class="hchip off-dim" id="lora-display"><i class="fa-solid fa-tower-broadcast" style="font-size:10px;"></i><span>LORA --</span></div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="recovery" id="recovery-ui">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:30px;height:30px;border-radius:9px;background:var(--accent-line);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div>
+          <div style="font-weight:800;">Time-resume pending</div>
+          <div style="font-weight:500;margin-top:2px;" id="pending-zone-name">No task</div>
+          <div style="font-weight:500;margin-top:1px;font-family:'JetBrains Mono',monospace;font-size:10.5px;" id="pending-time-left">00:00 left</div>
+        </div>
+      </div>
+      <label class="sw" id="resume-toggle-wrap"><input type="checkbox" id="resume-toggle" style="display:none;"></label>
+    </div>
+
+    <div class="hero" id="hero-card">
+      <div class="h-row">
+        <div>
+          <div class="h-eyebrow"><div class="dot"></div><span id="hero-eyebrow">Now irrigating</span></div>
+          <div class="h-zone" id="hero-zone-tag">ZONE 03</div>
+          <div class="h-name" id="hero-name">Coconut block 1</div>
+          <div class="h-tags">
+            <div class="h-tag live" id="hero-pump-tag"><span class="mini-dot"></span>Pump running</div>
+            <div class="h-tag" id="hero-fert-tag">Fertigation idle</div>
+          </div>
+        </div>
+        <div class="ring-w" id="hero-ring-wrap">
+          <svg width="64" height="64"><circle cx="32" cy="32" r="27" stroke="rgba(255,255,255,0.14)" stroke-width="5.5" fill="none"/><circle id="hero-ring-fill" cx="32" cy="32" r="27" stroke="var(--hero-accent)" stroke-width="5.5" fill="none" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke-linecap="round"/></svg>
+          <div class="ring-t"><div class="p" id="hero-pct">0%</div><div class="q">done</div></div>
+        </div>
+      </div>
+      <div class="h-foot" id="hero-foot">
+        <div class="h-time" id="hero-time">00:00<span>left</span></div>
+        <div class="h-next"><div class="l" id="hero-next-lbl">Up next</div><div class="v" id="hero-next-name">--</div></div>
+      </div>
+    </div>
+
+    <!-- MAIN POWER TELEMETRY -->
+    <div class="power">
+      <div class="pw-head" style="cursor:pointer;" onclick="togglePowerTelemetry()">
+        <div class="t"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4.1 13.4a.8.8 0 00.6 1.3h6.1l-1.4 7.3 8.9-11.4a.8.8 0 00-.6-1.3h-6.1z"/></svg>Main Power (3-Phase)</div>
+        <div class="pw-status" id="pw-status-line">PROT -- &middot; RESUME -- <i class="fa-solid fa-chevron-up" id="power-chevron" style="margin-left:3px;"></i></div>
+      </div>
+      <div id="power-body">
+        <div class="telemetry-row">
+          <div class="tbox" style="border-left-color:var(--ph-r)">
+            <div class="tbox-lbl"><i class="fa-solid fa-bolt" style="color:var(--ph-r)"></i> V R-Y</div>
+            <div class="tbox-val" id="val-vry">-- <small>V</small></div>
+            <div class="tbox-bar"><i id="bar-vry" style="background:var(--ph-r)"></i></div>
+          </div>
+          <div class="tbox" style="border-left-color:var(--ph-y)">
+            <div class="tbox-lbl"><i class="fa-solid fa-bolt" style="color:var(--ph-y)"></i> V Y-B</div>
+            <div class="tbox-val" id="val-vyb">-- <small>V</small></div>
+            <div class="tbox-bar"><i id="bar-vyb" style="background:var(--ph-y)"></i></div>
+          </div>
+          <div class="tbox" style="border-left-color:var(--ph-b)">
+            <div class="tbox-lbl"><i class="fa-solid fa-bolt" style="color:var(--ph-b)"></i> V B-R</div>
+            <div class="tbox-val" id="val-vbr">-- <small>V</small></div>
+            <div class="tbox-bar"><i id="bar-vbr" style="background:var(--ph-b)"></i></div>
+          </div>
+          <div class="tbox" style="border-left-color:var(--green)">
+            <div class="tbox-lbl"><i class="fa-solid fa-plug" style="color:var(--green)"></i> Amps</div>
+            <div class="tbox-val" id="val-curr">-- <small>A</small></div>
+            <div class="tbox-bar"><i id="bar-curr" style="background:var(--green)"></i><div class="lim" id="amp-limit-marker"></div></div>
+          </div>
+        </div>
+        <div style="padding:0 12px 13px;display:flex;justify-content:flex-end;">
+          <div class="pw-ok" id="pw-balance-badge"><div class="dot"></div>--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POWER TREND (24H) -->
+    <div class="power" id="trend-box">
+      <div class="pw-head" style="cursor:pointer;" onclick="togglePowerTrend()">
+        <div class="t"><i class="fa-solid fa-chart-line" style="color:var(--accent)"></i>Power trend (24h)</div>
+        <div class="pw-status"><i class="fa-solid fa-chevron-down" id="trend-chevron"></i></div>
+      </div>
+      <div id="trend-body" style="display:none;padding:14px 15px 16px;">
+        <div id="power-trend-chart" style="width:100%;"></div>
+        <div style="display:flex;flex-wrap:wrap;margin-top:10px;">
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;margin-bottom:4px;font-size:10px;font-weight:600;color:var(--muted);"><span style="width:8px;height:8px;border-radius:2px;background:var(--ph-r);display:inline-block;"></span>R-Y</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;margin-bottom:4px;font-size:10px;font-weight:600;color:var(--muted);"><span style="width:8px;height:8px;border-radius:2px;background:var(--ph-y);display:inline-block;"></span>Y-B</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;margin-bottom:4px;font-size:10px;font-weight:600;color:var(--muted);"><span style="width:8px;height:8px;border-radius:2px;background:var(--ph-b);display:inline-block;"></span>B-R</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;font-size:10px;font-weight:600;color:var(--muted);"><span style="width:8px;height:8px;border-radius:2px;background:var(--green);display:inline-block;"></span>Amps</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REMOTE MOTOR TELEMETRY -->
+    <div class="power" id="remote-telemetry-box">
+      <div class="pw-head" style="cursor:pointer;" onclick="toggleRmTelemetry()">
+        <div class="t"><i class="fa-solid fa-satellite-dish" style="color:var(--accent)"></i> Remote Motor Details (3km)</div>
+        <div class="pw-status" id="rm-status-line">PROT -- &middot; RESUME -- <i class="fa-solid fa-chevron-up" id="rm-chevron" style="margin-left:3px;"></i></div>
+      </div>
+      <div id="rm-power-body">
+      <div class="telemetry-row">
+        <div class="tbox" style="border-left-color:var(--ph-b)">
+          <div class="tbox-lbl"><i class="fa-solid fa-bolt" style="color:var(--ph-b)"></i> RM Voltage</div>
+          <div class="tbox-val" id="val-rem-v">-- <small>V</small></div>
+        </div>
+        <div class="tbox" style="border-left-color:var(--green)">
+          <div class="tbox-lbl"><i class="fa-solid fa-plug" style="color:var(--green)"></i> RM Current</div>
+          <div class="tbox-val" id="val-rem-c">-- <small>A</small></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- REMOTE DEVICES SWITCH -->
+    <div class="sec"><h3>Remote Devices</h3></div>
+    <div class="list" id="rm-grid" style="grid-template-columns: 1fr;">
+      <div class="row" id="card-remote-motor">
+        <div class="ic"><i class="fa-solid fa-tower-broadcast"></i></div>
+        <div class="bd">
+          <div class="nm-row"><span class="nm">Remote Motor (3km)</span><span class="pin">RM1</span></div>
+          <div class="st" id="status-remote-motor">Standby</div>
+          <!-- Time remaining progress bar for Remote Motor -->
+          <div class="pb"><div class="pf" id="progress-remote-motor"></div></div>
+          <div id="rm-fault-row" style="display:none;margin-top:9px;">
+            <button onclick="resetRemoteFault()" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--red-line);background:var(--red-soft);color:var(--red);font-weight:700;font-size:12px;cursor:pointer;"><i class="fa-solid fa-rotate-left"></i> Reset remote fault</button>
+          </div>
+        </div>
+        <div class="right-col"><div class="tleft" id="time-remote-motor" style="display:none;"></div><div class="sw" id="toggle-remote-motor" onclick="handleManualRemoteMotorClick()"></div></div>
+      </div>
+    </div>
+
+    <div class="sec"><h3>Live dashboard</h3><span class="c" id="live-count">0 ACTIVE</span></div>
+    <div class="list" id="irr-grid"></div>
+    <div class="list" id="fert-grid"></div>
+
+  </div>
+
+  <div class="bar-btm">
+    <button class="btn" onclick="openScheduleHub()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Automations &amp; settings</button>
+    <button class="btn-x" onclick="triggerManualEmergencyStop()" title="Emergency stop"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 2v10M18.4 6.6a9 9 0 11-12.8 0"/></svg></button>
+  </div>
+
+  <!-- ================= AUTOMATIONS HUB (TABS) ================= -->
+  <div class="modal" id="scheduleHubModal">
+    <div class="modal-header">
+      <h2>Automations &amp; Config</h2>
+      <button class="close-btn" onclick="closeScheduleHub()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    </div>
+    <div class="container">
+      <div class="tab-bar" id="hub-tab-bar">
+        <button class="tab-btn on" onclick="switchHubTab('schedules')"><i class="fa-solid fa-clock"></i> Schedules</button>
+        <button class="tab-btn" onclick="switchHubTab('backwash')"><i class="fa-solid fa-recycle"></i> Backwash</button>
+        <button class="tab-btn" onclick="switchHubTab('protection')"><i class="fa-solid fa-shield-halved"></i> Protection</button>
+        <button class="tab-btn" onclick="switchHubTab('labels')"><i class="fa-solid fa-tags"></i> Labels</button>
+        <button class="tab-btn" onclick="switchHubTab('visibility')"><i class="fa-solid fa-thumbtack"></i> Pin to tab</button>
+        <button class="tab-btn" onclick="switchHubTab('history')"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+      </div>
+
+      <div class="tab-panel on" id="tab-panel-schedules">
+                <div id="active-schedules-list"><p style="text-align:center;color:var(--faint);margin-top:20px;">Loading data...</p></div>
+        <button class="btn-create" onclick="openScheduleCreator()"><i class="fa-solid fa-plus"></i> Create new schedule</button>
+
+                <!-- REMOTE MOTOR SCHEDULE -->
+        <div class="setup-card">
+          <h3 id="rm-sched-head" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="toggleRmSchedule()"><span><i class="fa-solid fa-tower-broadcast" style="color:var(--accent)"></i> Remote Motor Schedule</span><i class="fa-solid fa-chevron-up" id="rm-sched-chevron" style="font-size:11px;color:var(--faint);"></i></h3>
+          <div id="rm-sched-body">
+          <div class="input-group"><span>Enable auto-start</span><label class="sw" id="rm-sched-toggle-wrap"><input type="checkbox" id="rm-sched-toggle" style="display:none;"></label></div>
+          <div class="input-group"><span>Run time</span><input type="time" id="rm-sched-time" value="00:00" style="width:120px;"></div>
+          <div class="input-group"><span>Duration (mins)</span><input type="number" id="rm-sched-dur" value="30" min="1" style="width:80px;"></div>
+          <div style="margin-top:6px;"><span style="font-size:12.5px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Execution days</span><div class="day-selector" id="rm-days"></div></div>
+          <button class="btn-create" style="margin-bottom:0;" onclick="saveRemoteMotorSchedule()"><i class="fa-solid fa-floppy-disk"></i> Save RM Schedule</button>
+        </div>
+        </div>
+
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-droplet-slash" style="color:var(--accent)"></i> Water budget</h3>
+          <p class="label-hint" style="margin-top:-6px;">Temporarily scale every schedule's watering duration up or down &mdash; handy after rain, without editing each one. Doesn't change your saved schedule minutes, only how long they actually run.</p>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <input type="range" id="water-budget-slider" min="50" max="150" value="100" step="5" style="flex:1;" oninput="document.getElementById('water-budget-val').innerText=this.value+'%'">
+            <span id="water-budget-val" style="font-family:'JetBrains Mono',monospace;font-weight:800;min-width:46px;text-align:right;">100%</span>
+          </div>
+          <button class="btn-create" style="margin-bottom:0;" onclick="applyWaterBudget()"><i class="fa-solid fa-check"></i> Apply budget</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-panel-backwash">
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-recycle" style="color:var(--accent)"></i> Backwash (flush) configuration</h3>
+          <div class="input-group"><span>Enable auto-backwash</span><label class="sw" id="bw-toggle-wrap"><input type="checkbox" id="bw-toggle" style="display:none;"></label></div>
+          <div class="input-group"><span>Run time</span><input type="time" id="bw-time" value="00:00" style="width:120px;"></div>
+          <div class="input-group"><span>Duration (mins)</span><input type="number" id="bw-dur" value="5" min="1" style="width:80px;"></div>
+          <div style="margin-top:6px;"><span style="font-size:12.5px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Execution days</span><div class="day-selector" id="bw-days"></div></div>
+          <button class="btn-create" style="margin-bottom:0;" onclick="saveBackwashConfig()"><i class="fa-solid fa-floppy-disk"></i> Save backwash settings</button>
+        </div>
+        <button class="btn-create" style="margin-bottom:0;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);" onclick="runBackwashNow()"><i class="fa-solid fa-play"></i> Run backwash now</button>
+      </div>
+
+      <div class="tab-panel" id="tab-panel-protection">
+        <!-- MAIN MOTOR PROTECTION -->
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent)"></i> Main Motor Protection (3-Phase)</h3>
+          <div class="input-group"><span>Enable hardware protection</span><label class="sw" id="prot-toggle-wrap"><input type="checkbox" id="prot-toggle" style="display:none;"></label></div>
+          <div class="input-group"><span>Voltage limits (V)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="prot-min-v" placeholder="Min" style="width:64px;"><span style="color:var(--faint);">&ndash;</span><input type="number" id="prot-max-v" placeholder="Max" style="width:64px;"></div></div>
+          <div class="input-group" style="margin-bottom:0;"><span>Current limits (A)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="prot-min-a" step="0.1" placeholder="Dry" style="width:64px;"><span style="color:var(--faint);">&ndash;</span><input type="number" id="prot-max-a" step="0.1" placeholder="Over" style="width:64px;"></div></div>
+          <div class="input-group" style="margin-top:13px;margin-bottom:0;"><span><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:6px;"></i>Time-resume after fault clears</span><label class="sw" id="prot-resume-toggle-wrap"><input type="checkbox" id="prot-resume-toggle" style="display:none;"></label></div>
+          <button class="btn-create" style="margin-bottom:0;margin-top:14px;" onclick="saveProtectionLimits()"><i class="fa-solid fa-floppy-disk"></i> Save Limits</button>
+        </div>
+
+        <!-- REMOTE MOTOR PROTECTION -->
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-satellite-dish" style="color:var(--accent)"></i> Remote Motor Protection</h3>
+          <p class="label-hint" style="margin-top:-6px;">Monitors the 3km remote motor via LoRa. Shuts down if single-phase voltage or current go out of bounds.</p>
+          <div class="input-group"><span>Enable remote protection</span><label class="sw" id="rm-prot-toggle-wrap"><input type="checkbox" id="rm-prot-toggle" style="display:none;"></label></div>
+          <div class="input-group"><span>Voltage limits (V)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="rm-prot-min-v" placeholder="Min" style="width:64px;"><span style="color:var(--faint);">&ndash;</span><input type="number" id="rm-prot-max-v" placeholder="Max" style="width:64px;"></div></div>
+          <div class="input-group" style="margin-bottom:0;"><span>Current limits (A)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="rm-prot-min-a" step="0.1" placeholder="Dry" style="width:64px;"><span style="color:var(--faint);">&ndash;</span><input type="number" id="rm-prot-max-a" step="0.1" placeholder="Over" style="width:64px;"></div></div>
+          <div class="input-group" style="margin-top:13px;margin-bottom:0;"><span><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:6px;"></i>Remote time-resume after power fault</span><label class="sw" id="rm-resume-toggle-wrap"><input type="checkbox" id="rm-resume-toggle" style="display:none;"></label></div>
+          <p class="label-hint" style="margin-top:8px;margin-bottom:0;">Power / voltage fault stops the remote motor &rarr; the unused run time is completed once power is stable. Not applied for dry-run or overload.</p>
+          <button class="btn-create" style="margin-bottom:0;margin-top:14px;" onclick="saveRmProtectionLimits()"><i class="fa-solid fa-floppy-disk"></i> Save RM Limits</button>
+        </div>
+
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-microchip" style="color:var(--accent)"></i> System health</h3>
+          <div class="input-group"><span>Free memory</span><span id="free-heap-val" style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--ink);">-- KB</span></div>
+          <button class="btn-create" style="margin-bottom:0;background:var(--red-soft);color:var(--red);border:1px solid var(--red-line);" onclick="showRestartConfirm()"><i class="fa-solid fa-power-off"></i> Restart device</button>
+        </div>
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-broom" style="color:var(--accent)"></i> Data retention</h3>
+          <div class="input-group"><span>Keep telemetry for (days)</span><input type="number" id="telemetry-retain-days" value="7" min="1" max="90" style="width:70px;"></div>
+          <button class="btn-create" style="margin-bottom:0;" onclick="pruneOldTelemetry(true)"><i class="fa-solid fa-broom"></i> Prune now</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-panel-labels">
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-location-dot" style="color:var(--accent)"></i> Farm location</h3>
+          <div style="position:relative;">
+            <input type="text" id="loc-search-input" placeholder="Search for a city or place..." autocomplete="off" oninput="onLocationSearchInput()">
+            <div id="loc-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:20;box-shadow:var(--shadow);"></div>
+          </div>
+          <p class="label-hint" style="margin-top:9px;margin-bottom:0;">Selected: <strong id="loc-selected-display" style="color:var(--ink);">Not set</strong></p>
+        </div>
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-tags" style="color:var(--accent)"></i> Rename zones &amp; compartments</h3>
+          <span style="font-size:12px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px;">Irrigation zones</span>
+          <div id="labels-zone-container"></div>
+          <span style="font-size:12px;color:var(--muted);font-weight:700;display:block;margin:14px 0 8px;">Fertilizer compartments</span>
+          <div id="labels-fert-container"></div>
+          <button class="btn-create" style="margin-bottom:0;margin-top:14px;" onclick="saveSystemLabels()"><i class="fa-solid fa-floppy-disk"></i> Save location &amp; labels</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-panel-visibility" style="margin-bottom:30px;">
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-thumbtack" style="color:var(--accent)"></i> Pin to tab</h3>
+          <p class="label-hint" style="margin-top:-6px;">Pin a zone or compartment ON here to show it on the front dashboard. Everything stays OFF (hidden) by default until you pin it.</p>
+          <span style="font-size:12px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px;">Irrigation zones</span>
+          <div id="visibility-zone-container"></div>
+          <span style="font-size:12px;color:var(--muted);font-weight:700;display:block;margin:14px 0 8px;">Fertilizer compartments</span>
+          <div id="visibility-fert-container"></div>
+          <button class="btn-create" style="margin-bottom:0;margin-top:14px;" onclick="saveVisibility()"><i class="fa-solid fa-floppy-disk"></i> Save pins</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-panel-history" style="margin-bottom:30px;">
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-chart-simple" style="color:var(--accent)"></i> This week</h3>
+          <div style="display:flex;justify-content:space-around;text-align:center;">
+            <div><div style="font-size:21px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="wk-total-mins">0</div><div style="font-size:9px;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;">Minutes</div></div>
+            <div><div style="font-size:21px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="wk-zones-used">0</div><div style="font-size:9px;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;">Zones used</div></div>
+            <div><div style="font-size:21px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="wk-interrupted">0</div><div style="font-size:9px;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-top:3px;">Interrupted</div></div>
+          </div>
+        </div>
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-chart-column" style="color:var(--accent)"></i> Last 7 days</h3>
+          <p class="label-hint" style="margin-top:-6px;">Minutes watered per zone, per day.</p>
+          <div id="history-chart" style="width:100%;"></div>
+          <div id="history-chart-legend" style="display:flex;flex-wrap:wrap;margin-top:10px;"></div>
+        </div>
+        <div class="setup-card">
+          <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent)"></i> Watering history</h3>
+          <p class="label-hint" style="margin-top:-6px;">Shows the most recent runs logged by the controller under <code>history/</code> in Firebase &mdash; zone, start time, duration and fertilizer used.</p>
+          <div id="watering-history-list"><p style="text-align:center;color:var(--faint);margin-top:20px;">Loading data...</p></div>
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <button class="btn-create" style="margin-bottom:0;flex:1;" onclick="exportHistoryCSV()"><i class="fa-solid fa-file-arrow-down"></i> Export CSV</button>
+            <button class="btn-create" style="margin-bottom:0;flex:1;background:var(--red-soft);color:var(--red);border:1px solid var(--red-line);" onclick="clearWateringHistory()"><i class="fa-solid fa-trash"></i> Clear history</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCHEDULE CREATOR ================= -->
+  <div class="modal" id="scheduleCreatorModal">
+    <div class="modal-header">
+      <h2 id="scheduleModalTitle">Create schedule</h2>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="save-btn-top" onclick="saveSchedule()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        <button class="close-btn" onclick="closeScheduleCreator()">Cancel</button>
+      </div>
+    </div>
+    <div class="container" style="padding-top:14px;">
+      <div class="setup-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h3 style="margin:0;border:none;padding:0;">Start times (max 5)</h3>
+          <button class="btn-cancel" style="padding:7px 12px;font-size:12px;border-radius:8px;border:none;font-weight:700;cursor:pointer;background:var(--soft);color:var(--ink);" onclick="addStartTime()"><i class="fa-solid fa-plus"></i> Add time</button>
+        </div>
+        <div id="start-times-container" style="display:flex;flex-direction:column;gap:9px;"></div>
+      </div>
+      <div class="setup-card"><h3>Watering days</h3><div class="day-selector" id="master-days"></div></div>
+      <div class="setup-card">
+        <h3>Zone &amp; compartment matrix</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Set base watering time per zone. Add up to 4 fertilizer injections per zone.</p>
+        <div id="zone-config-container"></div>
+      </div>
+      <button class="btn-create" id="btn-save-schedule" onclick="saveSchedule()" style="margin-bottom:50px;"><i class="fa-solid fa-check"></i> Save schedule</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="manualTimerOverlay">
+    <div class="mini-modal">
+      <h3 id="manualTimerTitle">Manual override</h3>
+      <p id="manualTimerDesc">Enter run duration in minutes. Leave as 0 for continuous run.</p>
+      <div class="center-wrap"><input type="number" id="manualTimerMins" min="0" value="10"></div>
+      <div class="mini-modal-btns"><button class="btn-cancel" onclick="cancelManualTimer()">Cancel</button><button class="btn-confirm" id="manualTimerConfirmBtn" onclick="confirmManualTimer()">Start</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="criticalAlertOverlay">
+    <div class="mini-modal">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i> Emergency trip</h3>
+      <p id="criticalAlertDesc" style="font-weight:600;">The system was halted manually.</p>
+      <p style="font-size:11px;color:#8b98ae;margin-bottom:22px;">Pumps and valves have been safely locked. This will auto-clear shortly.</p>
+      <div class="mini-modal-btns"><button class="btn-confirm" onclick="clearEmergencyStop()" style="width:100%;"><i class="fa-solid fa-xmark"></i> Close alert</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirmEStopOverlay">
+    <div class="mini-modal" style="border-color:#f87171;">
+      <h3 style="color:#f87171;"><i class="fa-solid fa-triangle-exclamation"></i> Emergency stop?</h3>
+      <p style="font-size:12.5px;color:#8b98ae;margin-bottom:22px;">This halts all pumps and valves right away and clears every queue. You'll need to manually clear it afterward from this screen.</p>
+      <div class="mini-modal-btns">
+        <button class="btn-cancel" onclick="document.getElementById('confirmEStopOverlay').style.display='none'">Cancel</button>
+        <button class="btn-confirm" style="background:#f87171;color:#2b0a0a;" onclick="confirmEmergencyStop()"><i class="fa-solid fa-power-off"></i> Stop now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirmRestartOverlay">
+    <div class="mini-modal" style="border-color:#f87171;">
+      <h3 style="color:#f87171;"><i class="fa-solid fa-power-off"></i> Restart device?</h3>
+      <p style="font-size:12.5px;color:#8b98ae;margin-bottom:22px;">The controller will reboot in a few seconds. Any zone, fertigation, or backwash running right now will be interrupted.</p>
+      <div class="mini-modal-btns">
+        <button class="btn-cancel" onclick="document.getElementById('confirmRestartOverlay').style.display='none'">Cancel</button>
+        <button class="btn-confirm" style="background:#f87171;color:#2b0a0a;" onclick="confirmRestartDevice()"><i class="fa-solid fa-power-off"></i> Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="autoRecoveryOverlay">
+    <div class="mini-modal">
+      <h3><i class="fa-solid fa-bolt"></i> Power fault detected</h3>
+      <p id="autoRecoveryDesc" style="font-weight:600;"></p>
+      <div style="background:rgba(0,0,0,0.25);padding:14px;border-radius:9px;margin-bottom:18px;">
+        <p style="font-size:11.5px;color:#fff;margin:0;"><i class="fa-solid fa-stopwatch fa-spin"></i> Hardware is locked. Monitoring power for 30s of stability before auto-resuming.</p>
+      </div>
+      <button class="btn-cancel" onclick="document.getElementById('autoRecoveryOverlay').style.display='none'" style="width:100%;"><i class="fa-solid fa-xmark"></i> Close alert</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===================== FIREBASE ===================== */
+const loginScreen = document.getElementById('login-screen');
+const mainApp = document.getElementById('main-app');
+const loginError = document.getElementById('login-error');
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB6fuLnygGDAaRvLsWbvrECjsZRSvW4MP8",
+  databaseURL: "https://smart-irrigation-system-55340-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+let auth, db;
+const firebaseSdkLoaded = (typeof firebase !== 'undefined');
+
+if (firebaseSdkLoaded) {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.database();
+} else {
+  loginScreen.querySelector('.login-card').innerHTML = `
+    <i class="fa-solid fa-wifi" style="color:#f87171;"></i>
+    <h2>Can't reach Firebase</h2>
+    <p style="margin-bottom:0;">This page needs an active internet connection to load the Firebase SDK.</p>`;
+  auth = { onAuthStateChanged: function(){ }, signInWithEmailAndPassword: function(){ return { catch: function(cb){ cb({message:'Offline'}); } }; } };
+  const offlineRef = { on:function(){}, once:function(){ return Promise.resolve({val:function(){return 0;}}); }, update:function(){ return Promise.resolve(); }, set:function(){ return Promise.resolve(); } };
+  db = { ref: function(){ return offlineRef; } };
+}
+
+/* ===================== THEME CYCLER ===================== */
+const THEMES = ['light','fresh','sand','midnight','ocean','graphite','indigo','rose'];
+const THEME_LABELS = { light:'Light', fresh:'Fresh', sand:'Sand', midnight:'Dark', ocean:'Ocean', graphite:'Graphite', indigo:'Cyber', rose:'Sunrise' };
+let themeIdx = 0;
+function renderThemeLabel(){
+  let lbl=document.getElementById('theme-name-label');
+  if(lbl) lbl.innerText = THEME_LABELS[THEMES[themeIdx]] || THEMES[themeIdx];
+}
+(function initTheme(){
+  const saved = localStorage.getItem('sipTheme');
+  if (saved && THEMES.includes(saved)) themeIdx = THEMES.indexOf(saved);
+  document.documentElement.setAttribute('data-theme', THEMES[themeIdx]);
+  renderThemeLabel();
+})();
+function cycleTheme(){
+  themeIdx = (themeIdx + 1) % THEMES.length;
+  document.documentElement.setAttribute('data-theme', THEMES[themeIdx]);
+  localStorage.setItem('sipTheme', THEMES[themeIdx]);
+  renderThemeLabel();
+}
+
+/* ===================== STATE ===================== */
+const ZONE_COUNT = 7;
+const FERT_COUNT = 5;
+let currentSysState = {};
+let localSchedules = {};
+let zoneLabels = Array.from({length: ZONE_COUNT}, (_, i) => `Zone ${i+1}`);
+let fertLabels = Array.from({length: FERT_COUNT}, (_, i) => `Compartment ${i+1}`);
+let zoneEnabled = Array(ZONE_COUNT).fill(false);
+let fertEnabled = Array(FERT_COUNT).fill(false);
+let pendingManualType = "";
+let pendingManualId = 0;
+let editingSlotKey = null;
+let currentInterlockReason = 0;
+let alertTimeout, interlockTimeout;
+let irrProgressState = {}; 
+let fertProgressState = {};
+let bwDurationMins = 5;
+let powerDetailOpen = true;
+let farmLocation = '';
+let lastKnownLat, lastKnownLon;
+let rmStatus = {};
+let rmCfgState = {};      // /remoteCtl/config
+let rmDetailOpen = true;
+
+/* ===================== PROGRESS (refresh-safe) =====================
+   Total run time comes from the controller (activeIrrTotal / activeFertTotal / remoteStatus.total),
+   so the ring/bars keep the right percentage after a page refresh instead of restarting at 0%.
+   If the controller doesn't send a valid total (old firmware), fall back to the old local estimate. */
+function calcProgress(store, key, stopSec, serverTotal, nowSec){
+  let remain = Math.max(stopSec - nowSec, 0);
+  let total;
+  if(serverTotal > 0 && serverTotal >= remain){ total = serverTotal; }
+  else {
+    let st = store[key];
+    if(!st || st.stop !== stopSec){ st = store[key] = { stop: stopSec, total: Math.max(remain,1) }; }
+    total = st.total;
+  }
+  let pct = Math.min(100, Math.max(0, ((total - remain) / total) * 100));
+  return { remain: remain, total: total, pct: pct };
+}
+
+/* ===================== ZONE / FERT ROW GENERATION ===================== */
+for(let i=1;i<=ZONE_COUNT;i++){
+  document.getElementById('irr-grid').innerHTML += `<div class="row" id="card-irr-${i}">
+    <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 8 5 11.5 5 15a7 7 0 0014 0c0-3.5-3-7-7-13z"/></svg></div>
+    <div class="bd">
+      <div class="nm-row"><span class="nm" id="title-irr-${i}">Zone ${i}</span><span class="pin">Z0${i}</span></div>
+      <div class="st" id="status-irr-${i}">Standby</div>
+      <div class="pb"><div class="pf" id="progress-irr-${i}"></div></div>
+    </div>
+    <div class="right-col"><div class="tleft" id="time-irr-${i}" style="display:none;"></div><div class="sw" id="toggle-irr-${i}" onclick="handleManualIrrClick(${i})"></div></div>
+  </div>`;
+}
+for(let i=1;i<=FERT_COUNT;i++){
+  document.getElementById('fert-grid').innerHTML += `<div class="row fert" id="card-fert-${i}">
+    <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v5.5L5.5 18a2 2 0 001.8 3h9.4a2 2 0 001.8-3L14 8.5V3"/></svg></div>
+    <div class="bd">
+      <div class="nm-row"><span class="nm" id="title-fert-${i}">Compartment ${i}</span><span class="pin">C0${i}</span></div>
+      <div class="st" id="status-fert-${i}">Standby</div>
+      <div class="pb"><div class="pf" id="progress-fert-${i}"></div></div>
+    </div>
+    <div class="right-col"><div class="tleft" id="time-fert-${i}" style="display:none;"></div><div class="sw" id="toggle-fert-${i}" onclick="handleManualFertClick(${i})"></div></div>
+  </div>`;
+}
+
+function rebuildLabelUI(){
+  let z='', f='';
+  for(let i=0;i<ZONE_COUNT;i++) z+=`<div class="label-row"><input type="text" id="z-rename-${i}" placeholder="Zone ${i+1}"></div>`;
+  for(let i=0;i<FERT_COUNT;i++) f+=`<div class="label-row"><input type="text" id="f-rename-${i}" placeholder="Compartment ${i+1}"></div>`;
+  document.getElementById('labels-zone-container').innerHTML = z;
+  document.getElementById('labels-fert-container').innerHTML = f;
+}
+rebuildLabelUI();
+
+function rebuildVisibilityUI(){
+  let z='', f='';
+  for(let i=0;i<ZONE_COUNT;i++) z+=`<div class="input-group" style="margin-bottom:8px;"><span id="vis-zname-${i}">Zone ${i+1}</span><label class="sw" id="vis-z-wrap-${i}"><input type="checkbox" id="vis-z-${i}" style="display:none;"></label></div>`;
+  for(let i=0;i<FERT_COUNT;i++) f+=`<div class="input-group" style="margin-bottom:8px;"><span id="vis-fname-${i}">Compartment ${i+1}</span><label class="sw" id="vis-f-wrap-${i}"><input type="checkbox" id="vis-f-${i}" style="display:none;"></label></div>`;
+  document.getElementById('visibility-zone-container').innerHTML = z;
+  document.getElementById('visibility-fert-container').innerHTML = f;
+  for(let i=0;i<ZONE_COUNT;i++) wireVisualSwitch(`vis-z-wrap-${i}`, `vis-z-${i}`);
+  for(let i=0;i<FERT_COUNT;i++) wireVisualSwitch(`vis-f-wrap-${i}`, `vis-f-${i}`);
+}
+function wireVisualSwitch(wrapId, inputId){
+  const wrap = document.getElementById(wrapId);
+  const input = document.getElementById(inputId);
+  function render(){ wrap.classList.toggle('on', input.checked); }
+  wrap.addEventListener('click', (e)=>{ e.preventDefault(); input.checked = !input.checked; render(); });
+  render();
+}
+rebuildVisibilityUI();
+
+let locSearchTimeout = null;
+let locSearchResults = [];
+function onLocationSearchInput(){
+  clearTimeout(locSearchTimeout);
+  let q = document.getElementById('loc-search-input').value.trim();
+  let sugDiv = document.getElementById('loc-suggestions');
+  if(q.length < 3){ sugDiv.style.display='none'; sugDiv.innerHTML=''; return; }
+  locSearchTimeout = setTimeout(()=>{
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=6&q=${encodeURIComponent(q)}`)
+      .then(r=>r.json())
+      .then(results=>{
+        locSearchResults = results||[];
+        if(locSearchResults.length===0){
+          sugDiv.innerHTML = '<div class="loc-suggestion-item muted">No matches found</div>';
+        } else {
+          sugDiv.innerHTML = locSearchResults.map((r,idx)=>`<div class="loc-suggestion-item" data-idx="${idx}">${r.display_name}</div>`).join('');
+        }
+        sugDiv.style.display='block';
+      })
+      .catch(()=>{
+        sugDiv.innerHTML = '<div class="loc-suggestion-item muted">Search failed</div>';
+        sugDiv.style.display='block';
+      });
+  }, 500);
+}
+function selectLocation(name, lat, lon){
+  document.getElementById('loc-search-input').value = name;
+  document.getElementById('loc-selected-display').innerText = name;
+  document.getElementById('loc-suggestions').style.display='none';
+  farmLocation = name;
+  document.getElementById('weather-location').innerText = name;
+  db.ref('system/labels').update({ location: name, lat: lat, lon: lon });
+  fetchWeather(lat, lon);
+}
+document.getElementById('loc-suggestions').addEventListener('click', (e)=>{
+  let item = e.target.closest('.loc-suggestion-item');
+  if(!item || item.dataset.idx===undefined) return;
+  let picked = locSearchResults[parseInt(item.dataset.idx)];
+  if(picked) selectLocation(picked.display_name, parseFloat(picked.lat), parseFloat(picked.lon));
+});
+document.addEventListener('click', (e)=>{
+  let sugDiv = document.getElementById('loc-suggestions');
+  let searchInput = document.getElementById('loc-search-input');
+  if(sugDiv && !sugDiv.contains(e.target) && e.target!==searchInput) sugDiv.style.display='none';
+});
+
+const WMO_ICON_MAP = { 0:'fa-sun', 1:'fa-sun', 2:'fa-cloud-sun', 3:'fa-cloud', 45:'fa-smog', 48:'fa-smog',
+  51:'fa-cloud-rain', 53:'fa-cloud-rain', 55:'fa-cloud-rain', 61:'fa-cloud-rain', 63:'fa-cloud-rain', 65:'fa-cloud-showers-heavy',
+  71:'fa-snowflake', 73:'fa-snowflake', 75:'fa-snowflake', 80:'fa-cloud-rain', 81:'fa-cloud-rain', 82:'fa-cloud-showers-heavy',
+  95:'fa-cloud-bolt', 96:'fa-cloud-bolt', 99:'fa-cloud-bolt' };
+function fetchWeather(lat, lon){
+  if(lat===undefined || lon===undefined || isNaN(lat) || isNaN(lon)) return;
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m`)
+    .then(r=>r.json())
+    .then(data=>{
+      let cur = data && data.current;
+      if(!cur) return;
+      document.getElementById('weather-temp').innerText = `${Math.round(cur.temperature_2m)}\u00b0C`;
+      document.getElementById('weather-icon').className = 'fa-solid ' + (WMO_ICON_MAP[cur.weather_code] || 'fa-sun');
+      if(cur.wind_speed_10m!==undefined){
+        document.getElementById('weather-wind').innerHTML = `<i class="fa-solid fa-wind" style="font-size:8px;"></i> ${Math.round(cur.wind_speed_10m)} km/h`;
+      }
+    }).catch(()=>{});
+}
+let lastWeatherFetch = 0;
+function fetchWeatherIfDue(lat, lon){
+  let now = Date.now();
+  if(now - lastWeatherFetch > 30*60*1000){
+    lastWeatherFetch = now;
+    fetchWeather(lat, lon);
+  }
+}
+setInterval(()=>{
+  if(lastKnownLat!==undefined && lastKnownLon!==undefined) fetchWeatherIfDue(lastKnownLat, lastKnownLon);
+}, 5*60*1000); 
+
+function wireSimpleSwitch(wrapId, inputId, onSetCb){
+  const wrap = document.getElementById(wrapId);
+  const input = document.getElementById(inputId);
+  function render(){ wrap.classList.toggle('on', input.checked); }
+  wrap.addEventListener('click', (e)=>{ e.preventDefault(); input.checked = !input.checked; render(); if(onSetCb) onSetCb(input.checked); });
+  render();
+  return render;
+}
+const renderBwSwitch = wireSimpleSwitch('bw-toggle-wrap','bw-toggle');
+const renderProtSwitch = wireSimpleSwitch('prot-toggle-wrap','prot-toggle');
+const renderRmProtSwitch = wireSimpleSwitch('rm-prot-toggle-wrap','rm-prot-toggle');
+const renderRmResumeSwitch = wireSimpleSwitch('rm-resume-toggle-wrap','rm-resume-toggle');
+const renderResumeSwitch = wireSimpleSwitch('resume-toggle-wrap','resume-toggle', (checked)=>{ db.ref('system/autoResumeEnabled').set(checked); });
+const renderProtResumeSwitch = wireSimpleSwitch('prot-resume-toggle-wrap','prot-resume-toggle', (checked)=>{ db.ref('system/autoResumeEnabled').set(checked); document.getElementById('resume-toggle').checked = checked; renderResumeSwitch(); });
+const renderRmSchedSwitch = wireSimpleSwitch('rm-sched-toggle-wrap', 'rm-sched-toggle');
+
+const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const dayVals = [1,2,4,8,16,32,64];
+let mDaysHTML='', bwDaysHTML='', rmDaysHTML='';
+for(let i=0;i<7;i++){
+  mDaysHTML += `<label><input type="checkbox" class="day-checkbox m-day" value="${dayVals[i]}"><span class="day-pill">${dayNames[i]}</span></label>`;
+  bwDaysHTML += `<label><input type="checkbox" class="day-checkbox bw-cb bw-day" value="${dayVals[i]}"><span class="day-pill">${dayNames[i]}</span></label>`;
+  rmDaysHTML += `<label><input type="checkbox" class="day-checkbox rm-cb rm-day" value="${dayVals[i]}"><span class="day-pill">${dayNames[i]}</span></label>`;
+}
+document.getElementById('master-days').innerHTML = mDaysHTML;
+document.getElementById('bw-days').innerHTML = bwDaysHTML;
+document.getElementById('rm-days').innerHTML = rmDaysHTML;
+
+function rebuildZoneConfigUI(){
+  let html='';
+  for(let z=0; z<ZONE_COUNT; z++){
+    html += `<div class="zone-setup"><div class="zone-header"><span><i class="fa-solid fa-droplet" style="color:var(--accent)"></i> <span id="conf-zname-${z}">${zoneLabels[z]}</span></span></div>
+      <div class="input-group"><span>Water duration</span><div style="display:flex;align-items:center;"><input type="number" id="z-irrDur-${z}" min="0" value="0" style="width:70px;"><span style="font-size:11.5px;font-weight:600;color:var(--faint);margin-left:8px;">mins</span></div></div>
+      <div class="fert-container" id="fert-container-${z}"></div>
+      <button class="btn-add-fert" onclick="addFertRow(${z})"><i class="fa-solid fa-plus"></i> Add fertilizer</button></div>`;
+  }
+  document.getElementById('zone-config-container').innerHTML = html;
+}
+rebuildZoneConfigUI();
+
+let startTimesCount = 0;
+function addStartTime(h="06", m="00"){
+  if(startTimesCount>=5){ alert("Max 5 start times allowed."); return; }
+  let id = startTimesCount++;
+  document.getElementById('start-times-container').insertAdjacentHTML('beforeend',
+    `<div class="input-group" id="st-row-${id}" style="margin-bottom:0;"><input type="time" id="st-time-${id}" value="${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}" style="width:calc(100% - 40px);"><button class="remove-fert" onclick="document.getElementById('st-row-${id}').remove(); startTimesCount--;" style="position:static;margin-left:10px;"><i class="fa-solid fa-xmark"></i></button></div>`);
+}
+
+let fertCounts = Array(ZONE_COUNT).fill(0);
+function addFertRow(zoneIdx){
+  if(fertCounts[zoneIdx]>=FERT_COUNT){ alert("Max "+FERT_COUNT+" fertilizers allowed."); return; }
+  let rowId = fertCounts[zoneIdx];
+  let fDays=''; for(let d=0;d<7;d++){ fDays+=`<label><input type="checkbox" class="day-checkbox fert-cb f-day-${zoneIdx}-${rowId}" value="${dayVals[d]}"><span class="day-pill">${dayNames[d]}</span></label>`; }
+  let compOpts=''; for(let c=0;c<FERT_COUNT;c++) compOpts+=`<option value="${c+1}">${fertLabels[c]}</option>`;
+  document.getElementById(`fert-container-${zoneIdx}`).insertAdjacentHTML('beforeend',
+    `<div class="fert-row" id="frow-${zoneIdx}-${rowId}"><button class="remove-fert" onclick="removeFertRow(${zoneIdx},${rowId})"><i class="fa-solid fa-xmark"></i></button>
+    <select id="sel-comp-${zoneIdx}-${rowId}" style="width:100%;margin-bottom:9px;">${compOpts}</select>
+    <div style="display:flex;gap:8px;margin-bottom:11px;">
+      <div style="flex:1;min-width:0;"><input type="time" id="sel-time-${zoneIdx}-${rowId}" style="width:100%;"></div>
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;"><input type="number" id="sel-mins-${zoneIdx}-${rowId}" min="1" value="5" style="width:100%;text-align:center;"><span style="font-size:11.5px;font-weight:600;color:var(--faint);white-space:nowrap;">mins</span></div>
+    </div>
+    <div style="font-size:11.5px;font-weight:700;margin-bottom:7px;color:var(--faint);">Inject on:</div>
+    <div class="day-selector">${fDays}</div></div>`);
+  fertCounts[zoneIdx]++;
+}
+function removeFertRow(zoneIdx, rowId){ let el=document.getElementById(`frow-${zoneIdx}-${rowId}`); if(el) el.remove(); }
+
+function switchHubTab(name){
+  document.querySelectorAll('#hub-tab-bar .tab-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('tab-panel-'+name).classList.add('on');
+  let idx = ['schedules','backwash','protection','labels','visibility','history'].indexOf(name);
+  document.querySelectorAll('#hub-tab-bar .tab-btn')[idx].classList.add('on');
+}
+
+function getNextRunTimeForZone(zoneIdx, nowSec){
+  const now = new Date(nowSec*1000);
+  const todayMask = dayVals[now.getDay()];
+  let best = null;
+  for(let s=0;s<3;s++){
+    let sched = localSchedules['slot_'+s];
+    if(!sched || !sched.active || !sched.zones || !sched.zones[zoneIdx]) continue;
+    if(!(sched.zones[zoneIdx].waterMins > 0)) continue;
+    if((sched.days & todayMask) === 0) continue;
+    let starts = sched.starts && sched.starts.length ? sched.starts : (sched.hour!==undefined ? [{hour:sched.hour,minute:sched.minute}] : []);
+    starts.forEach(st=>{
+      if(!st) return;
+      let cand = new Date(now); cand.setHours(st.hour, st.minute, 0, 0);
+      let candSec = Math.floor(cand.getTime()/1000);
+      if(candSec > nowSec && (best===null || candSec < best)) best = candSec;
+    });
+  }
+  return best; 
+}
+function computeUpNext(nowSec){
+  let bestSec=null, bestZone=null;
+  for(let z=0; z<ZONE_COUNT; z++){
+    let t = getNextRunTimeForZone(z, nowSec);
+    if(t!==null && (bestSec===null || t<bestSec)){ bestSec=t; bestZone=z; }
+  }
+  if(bestSec===null) return null;
+  return { timeLabel: new Date(bestSec*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), zoneName: zoneLabels[bestZone], zoneIdx: bestZone };
+}
+function getNextRunTimeForFert(compIdx1based, nowSec){
+  const now = new Date(nowSec*1000);
+  const todayMask = dayVals[now.getDay()];
+  let best = null;
+  for(let s=0;s<3;s++){
+    let sched = localSchedules['slot_'+s];
+    if(!sched || !sched.active || !sched.zones) continue;
+    if((sched.days & todayMask) === 0) continue;
+    for(let z=0; z<ZONE_COUNT; z++){
+      let zoneObj = sched.zones[z];
+      if(!zoneObj || !zoneObj.ferts || !(zoneObj.waterMins > 0)) continue;
+      zoneObj.ferts.forEach(fert=>{
+        if(!fert || fert.comp !== compIdx1based) return;
+        if(!(fert.mins > 0)) return;
+        if(fert.days!==undefined && (fert.days & todayMask)===0) return;
+        let cand = new Date(now); cand.setHours(fert.startHour||0, fert.startMinute||0, 0, 0);
+        let candSec = Math.floor(cand.getTime()/1000);
+        if(candSec > nowSec && (best===null || candSec < best)) best = candSec;
+      });
+    }
+  }
+  return best;
+}
+function computeUpNextFert(nowSec){
+  let bestSec=null, bestComp=null;
+  for(let c=1; c<=FERT_COUNT; c++){
+    let t = getNextRunTimeForFert(c, nowSec);
+    if(t!==null && (bestSec===null || t<bestSec)){ bestSec=t; bestComp=c; }
+  }
+  if(bestSec===null) return null;
+  return { timeLabel: new Date(bestSec*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), fertName: fertLabels[bestComp-1], fertIdx: bestComp };
+}
+
+/* ===================== AUTH ===================== */
+auth.onAuthStateChanged((user)=>{
+  if(user){ loginScreen.style.display='none'; mainApp.style.display='block'; initAppListeners(); }
+  else { loginScreen.style.display='flex'; mainApp.style.display='none'; }
+});
+function loginUser(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value.trim();
+  loginError.style.display='none';
+  auth.signInWithEmailAndPassword(email,pass).catch(()=>{ loginError.innerText="Invalid credentials."; loginError.style.display='block'; });
+}
+
+function updateClock(){
+  const now = new Date();
+  document.getElementById('sys-clock').innerText = now.toLocaleDateString('en-US',{weekday:'short'}) + ' · ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+}
+setInterval(updateClock,1000); updateClock();
+
+/* ===================== FIREBASE LISTENERS ===================== */
+function initAppListeners(){
+
+  autoPruneIfDue();
+
+  db.ref('system/labels').on('value',(snap)=>{
+    let l = snap.val() || {};
+    if(l.zones) zoneLabels = l.zones;
+    if(l.ferts) fertLabels = l.ferts;
+    if(l.zoneEnabled) zoneEnabled = l.zoneEnabled; else zoneEnabled = Array(ZONE_COUNT).fill(false);
+    if(l.fertEnabled) fertEnabled = l.fertEnabled; else fertEnabled = Array(FERT_COUNT).fill(false);
+    farmLocation = l.location || '';
+    let locIpt=document.getElementById('loc-search-input'); if(locIpt && document.activeElement!==locIpt) locIpt.value=farmLocation;
+    document.getElementById('loc-selected-display').innerText = farmLocation || 'Not set';
+    document.getElementById('weather-location').innerText = farmLocation || 'Location not set';
+    if(l.lat!==undefined && l.lon!==undefined){
+      lastKnownLat = l.lat; lastKnownLon = l.lon;
+      fetchWeatherIfDue(l.lat, l.lon);
+    }
+    for(let i=0;i<ZONE_COUNT;i++){
+      let ipt=document.getElementById(`z-rename-${i}`); if(ipt && document.activeElement!==ipt) ipt.value=zoneLabels[i];
+      let visChk=document.getElementById(`vis-z-${i}`); if(visChk && document.activeElement!==visChk){ visChk.checked = zoneEnabled[i]===true; document.getElementById(`vis-z-wrap-${i}`).classList.toggle('on', visChk.checked); }
+      let visName=document.getElementById(`vis-zname-${i}`); if(visName) visName.innerText = zoneLabels[i];
+      let t=document.getElementById(`title-irr-${i+1}`); if(t) t.innerText=zoneLabels[i];
+      let c=document.getElementById(`conf-zname-${i}`); if(c) c.innerText=zoneLabels[i];
+      let card=document.getElementById(`card-irr-${i+1}`); if(card) card.classList.toggle('zone-hidden', zoneEnabled[i]!==true);
+    }
+    for(let i=0;i<FERT_COUNT;i++){
+      let ipt=document.getElementById(`f-rename-${i}`); if(ipt && document.activeElement!==ipt) ipt.value=fertLabels[i];
+      let visChk=document.getElementById(`vis-f-${i}`); if(visChk && document.activeElement!==visChk){ visChk.checked = fertEnabled[i]===true; document.getElementById(`vis-f-wrap-${i}`).classList.toggle('on', visChk.checked); }
+      let visName=document.getElementById(`vis-fname-${i}`); if(visName) visName.innerText = fertLabels[i];
+      let t=document.getElementById(`title-fert-${i+1}`); if(t) t.innerText=fertLabels[i];
+      let card=document.getElementById(`card-fert-${i+1}`); if(card) card.classList.toggle('zone-hidden', fertEnabled[i]!==true);
+    }
+  });
+
+  db.ref('system/emergencyStop').on('value',(snap)=>{
+    if(snap.val()===true){
+      db.ref('system/lastTripReason').once('value').then((res)=>{
+        let code=res.val()||0;
+        let desc="Manual emergency stop activated.";
+        if(code===1) desc="FAULT [VOLTAGE]: Grid power out of safe bounds.";
+        if(code===2) desc="FAULT [DRY RUN]: Current below minimum. Check water source.";
+        if(code===3) desc="FAULT [OVERLOAD]: Current exceeded maximum. Motor may be jammed.";
+        if(code===4) desc="FAULT [SENSOR]: Power monitor disconnected.";
+        document.getElementById('criticalAlertDesc').innerText=desc;
+        document.getElementById('criticalAlertOverlay').style.display='flex';
+        clearTimeout(alertTimeout); alertTimeout=setTimeout(()=>{clearEmergencyStop();},10000);
+      });
+    } else document.getElementById('criticalAlertOverlay').style.display='none';
+  });
+
+  db.ref('system/interlockReason').on('value',(snap)=>{
+    let code=snap.val()||0; currentInterlockReason=code;
+    if(code>0 && !currentSysState.emergencyStop){
+      let desc="Hardware interlock active.";
+      if(code===1) desc="Voltage out of bounds.";
+      if(code===2) desc="Dry run detected.";
+      if(code===3) desc="Overload detected.";
+      if(code===4) desc="Sensor fault.";
+      if(code===5||code===6) desc="Power lost / phase missing.";
+      document.getElementById('autoRecoveryDesc').innerText=desc;
+      document.getElementById('autoRecoveryOverlay').style.display='flex';
+      clearTimeout(interlockTimeout); interlockTimeout=setTimeout(()=>{document.getElementById('autoRecoveryOverlay').style.display='none';},10000);
+    } else document.getElementById('autoRecoveryOverlay').style.display='none';
+  });
+
+  db.ref('system/motorConfig').on('value',(snap)=>{
+    let c=snap.val()||{};
+    document.getElementById('prot-toggle').checked = c.enabled||false; renderProtSwitch();
+    if(c.minV) document.getElementById('prot-min-v').value=c.minV;
+    if(c.maxV) document.getElementById('prot-max-v').value=c.maxV;
+    if(c.minA) document.getElementById('prot-min-a').value=c.minA;
+    if(c.maxA) document.getElementById('prot-max-a').value=c.maxA;
+  });
+
+  db.ref('remoteCtl/config').on('value',(snap)=>{
+    let c=snap.val()||{};
+    rmCfgState = c; document.getElementById('rm-prot-toggle').checked = c.enabled||false; renderRmProtSwitch();
+    document.getElementById('rm-resume-toggle').checked = (c.autoResume !== false); renderRmResumeSwitch();
+    if(c.minV) document.getElementById('rm-prot-min-v').value=c.minV;
+    if(c.maxV) document.getElementById('rm-prot-max-v').value=c.maxV;
+    if(c.minA) document.getElementById('rm-prot-min-a').value=c.minA;
+    if(c.maxA) document.getElementById('rm-prot-max-a').value=c.maxA;
+  });
+
+  db.ref('system/autoResumeEnabled').on('value',(snap)=>{
+    let v = snap.val()===true;
+    document.getElementById('prot-resume-toggle').checked = v; renderProtResumeSwitch();
+  });
+
+  db.ref('system/waterBudgetPercent').on('value', snap=>{
+    let v = snap.val();
+    if(v!==null && v!==undefined){
+      let slider = document.getElementById('water-budget-slider');
+      if(slider && document.activeElement!==slider){ slider.value = v; document.getElementById('water-budget-val').innerText = v+'%'; }
+    }
+  });
+
+  db.ref('schedules/backwash').on('value',(snap)=>{
+    let bw=snap.val()||{};
+    document.getElementById('bw-toggle').checked = bw.active||false; renderBwSwitch();
+    document.getElementById('bw-time').value = `${String(bw.hour||0).padStart(2,'0')}:${String(bw.minute||0).padStart(2,'0')}`;
+    document.getElementById('bw-dur').value = bw.durationMins||5;
+    bwDurationMins = bw.durationMins||5;
+    document.querySelectorAll('.bw-day').forEach(cb=>cb.checked=((bw.days & parseInt(cb.value))!==0));
+  });
+
+  db.ref('remoteStatus').on('value', (snap) => { rmStatus = snap.val() || {}; });
+
+  db.ref('remoteCtl/schedule/slot_0').on('value', (snap) => {
+    let rm = snap.val() || {};
+    document.getElementById('rm-sched-toggle').checked = rm.active || false;
+    renderRmSchedSwitch();
+    document.getElementById('rm-sched-time').value = `${String(rm.hour || 0).padStart(2, '0')}:${String(rm.minute || 0).padStart(2, '0')}`;
+    document.getElementById('rm-sched-dur').value = rm.durationMins || 30;
+    document.querySelectorAll('.rm-day').forEach(cb => cb.checked = ((rm.days & parseInt(cb.value)) !== 0));
+  });
+
+  db.ref('schedules').on('value',(snap)=>{
+    let data=snap.val()||{}; localSchedules=data;
+    const listDiv=document.getElementById('active-schedules-list'); listDiv.innerHTML="";
+    let has=false;
+    for(let s=0;s<3;s++){
+      let key='slot_'+s; let sched=data[key];
+      if(!sched || (!sched.hour && !sched.starts)) continue;
+      has=true;
+      let stText="";
+      if(sched.starts && sched.starts.length>0){ let a=[]; sched.starts.forEach(st=>{if(st) a.push(`${String(st.hour).padStart(2,'0')}:${String(st.minute).padStart(2,'0')}`);}); stText=a.join(" &bull; "); }
+      else stText=`${String(sched.hour||6).padStart(2,'0')}:${String(sched.minute||0).padStart(2,'0')}`;
+      let days=[]; for(let i=0;i<7;i++){ if((sched.days & dayVals[i])!==0) days.push(dayNames[i]); }
+      listDiv.innerHTML += `<div class="schedule-card"><div class="schedule-header-row"><div class="schedule-info"><h4><i class="fa-regular fa-clock" style="color:var(--faint);font-size:16px;"></i> ${stText}</h4></div><label class="sw" style="cursor:pointer;" id="sched-sw-${key}"></label></div>
+        <div class="schedule-info"><p><strong>Days:</strong> ${days.length===7?"Everyday":days.join(", ")}</p></div>
+        <div class="action-btns"><button class="btn-edit" onclick="openScheduleEditor('${key}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="btn-delete" onclick="deleteSchedule('${key}')"><i class="fa-solid fa-trash"></i> Delete</button></div></div>`;
+      let swEl=document.getElementById(`sched-sw-${key}`);
+      swEl.classList.toggle('on', sched.active);
+      swEl.addEventListener('click', ()=>{ let newVal=!swEl.classList.contains('on'); toggleScheduleActive(key,newVal); });
+    }
+    if(!has) listDiv.innerHTML = `<p style="text-align:center;color:var(--faint);margin-top:20px;font-weight:600;">No schedules configured.</p>`;
+  });
+
+  db.ref('history').limitToLast(200).on('value',(snap)=>{
+    let data = snap.val() || {};
+    let entries = Object.keys(data).map(k=>Object.assign({id:k}, data[k]));
+    entries.sort((a,b)=>(b.startTime||0)-(a.startTime||0));
+
+    renderWeeklySummary(entries);
+    renderHistoryChart(entries);
+
+    const listDiv = document.getElementById('watering-history-list');
+    if(entries.length===0){
+      listDiv.innerHTML = `<p style="text-align:center;color:var(--faint);margin-top:20px;font-weight:600;">No watering history yet. Once the controller logs a run to <span style="font-family:'JetBrains Mono',monospace;">history/</span>, it will show up here.</p>`;
+      return;
+    }
+    listDiv.innerHTML = entries.slice(0,30).map(e=>{
+      let zName = (e.zone>=1 && e.zone<=ZONE_COUNT) ? zoneLabels[e.zone-1] : `Zone ${e.zone||'?'}`;
+      let dt = e.startTime ? new Date(e.startTime*1000) : null;
+      let dateStr = dt ? dt.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '--';
+      let durStr = (e.durationMins!==undefined && e.durationMins!==null) ? `${e.durationMins} min` : '--';
+      let fertStr = (e.fertUsed && e.fertUsed.length) ? e.fertUsed.map(c=>fertLabels[c-1]||`C${c}`).join(', ') : 'None';
+      let statusHtml = e.completed===false ? `<span style="color:var(--red);font-weight:800;font-size:11px;">INTERRUPTED</span>` : `<span style="color:var(--green);font-weight:800;font-size:11px;">COMPLETED</span>`;
+      return `<div class="schedule-card">
+        <div class="schedule-header-row"><div class="schedule-info"><h4 style="font-size:14px;font-family:'Inter',Arial,sans-serif;">${zName}</h4></div>${statusHtml}</div>
+        <div class="schedule-info"><p><strong>When:</strong> ${dateStr}</p><p><strong>Duration:</strong> ${durStr}</p><p><strong>Fertilizer:</strong> ${fertStr}</p></div>
+      </div>`;
+    }).join('');
+  });
+
+  db.ref('system').on('value',(snap)=>{ currentSysState = snap.val() || {}; });
+
+  /* ============ MASTER CLOCK LOOP ============ */
+  setInterval(()=>{
+    let sys = currentSysState; if(!sys) return;
+    let nowSec = Math.floor(Date.now()/1000);
+    let isOnline = (nowSec - (sys.heartbeat||0)) < 25;
+    if(sys.freeHeap!==undefined){
+      document.getElementById('free-heap-val').innerText = `${Math.round(sys.freeHeap/1024)} KB`;
+    }
+    let activeIrr = sys.activeIrrZone||0, activeFert = sys.activeFertZone||0;
+    let manIrr = sys.manualIrrZone||0, manFert = sys.manualFertZone||0;
+    let p1Active = sys.pump1Active===true, fPumpActive = sys.fertPumpActive===true;
+    let isBwActive = sys.isBackwashActive===true;
+    let irrStop = sys.activeIrrStop||0, fertStop = sys.activeFertStop||0;
+    let displayIrrZone = activeIrr>0?activeIrr:(manIrr>0?manIrr:0);
+    let displayFertZone = activeFert>0?activeFert:(manFert>0?manFert:0);
+    let isPowerFault = (currentInterlockReason>0 || !isOnline);
+
+    let hb=document.getElementById('heartbeat-display');
+    if(isOnline){ hb.className="hchip"; hb.innerHTML=`<div class="dot"></div>ONLINE`; }
+    else { hb.className="hchip off"; hb.innerHTML=`<div class="dot"></div>OFFLINE`; }
+
+    let wifiEl=document.getElementById('wifi-display');
+    if(isOnline && sys.rssi !== undefined && sys.rssi < 0){
+      let rssi = sys.rssi;
+      let cls = "wifi-weak", icon="fa-wifi";
+      if(rssi > -60) cls="wifi-good";
+      else if(rssi > -75) cls="wifi-mid";
+      wifiEl.className = "hchip "+cls;
+      wifiEl.innerHTML = `<i class="fa-solid ${icon}" style="font-size:10px;"></i><span>${rssi} dBm</span>`;
+    } else {
+      wifiEl.className = "hchip off-dim";
+      wifiEl.innerHTML = `<i class="fa-solid fa-wifi" style="font-size:10px;"></i><span>-- dBm</span>`;
+    }
+
+    const vry=sys.voltageRY, vyb=sys.voltageYB, vbr=sys.voltageBR, curr=sys.current;
+    function pct(v){ return Math.max(0,Math.min(100,(v/300)*100)); }
+    if(isOnline && vry!==undefined && vry>=0){
+      document.getElementById('val-vry').innerHTML = vry.toFixed(1)+' <small>V</small>';
+      document.getElementById('val-vyb').innerHTML = vyb.toFixed(1)+' <small>V</small>';
+      document.getElementById('val-vbr').innerHTML = vbr.toFixed(1)+' <small>V</small>';
+      document.getElementById('bar-vry').style.width = pct(vry)+'%';
+      document.getElementById('bar-vyb').style.width = pct(vyb)+'%';
+      document.getElementById('bar-vbr').style.width = pct(vbr)+'%';
+      let delta = Math.max(vry,vyb,vbr) - Math.min(vry,vyb,vbr);
+      let badge = document.getElementById('pw-balance-badge');
+      if(delta <= 10){ badge.className="pw-ok"; badge.innerHTML=`<div class="dot"></div>BALANCED &middot; &Delta;${delta.toFixed(0)}V`; }
+      else { badge.className="pw-ok bad"; badge.innerHTML=`<div class="dot"></div>UNBALANCED &middot; &Delta;${delta.toFixed(0)}V`; }
+    } else {
+      document.getElementById('val-vry').innerHTML='-- <small>V</small>';
+      document.getElementById('val-vyb').innerHTML='-- <small>V</small>';
+      document.getElementById('val-vbr').innerHTML='-- <small>V</small>';
+      document.getElementById('bar-vry').style.width='0%';
+      document.getElementById('bar-vyb').style.width='0%';
+      document.getElementById('bar-vbr').style.width='0%';
+      let badge=document.getElementById('pw-balance-badge'); badge.className="pw-ok bad"; badge.innerHTML=`<div class="dot"></div>NO DATA`;
+    }
+    if(isOnline && curr!==undefined && curr>=0){
+      document.getElementById('val-curr').innerHTML = curr.toFixed(2)+' <small>A</small>';
+      let maxA = parseFloat(document.getElementById('prot-max-a').value) || 10;
+      let scaleMax = maxA*1.2;
+      document.getElementById('bar-curr').style.width = Math.min(100,(curr/scaleMax)*100)+'%';
+      document.getElementById('amp-limit-marker').style.left = Math.min(100,(maxA/scaleMax)*100)+'%';
+    } else {
+      document.getElementById('val-curr').innerHTML='-- <small>A</small>';
+      document.getElementById('bar-curr').style.width='0%';
+    }
+
+    // ===== REMOTE MOTOR (LoRa) =====
+    let rs = rmStatus || {};
+    let rmLink = isOnline && rs.link === true;
+    let rmOn = rmLink && rs.motorOn === true;
+    let rmMode = rs.mode || 0;                 // 1 = manual, 2 = scheduled
+    let rmRemain = rs.remain || 0;             // seconds (0 + manual = continuous)
+    let rmFault = rs.fault || 0;
+    let rmCmd = rs.cmdState || 'none';
+
+    // header LoRa chip (next to master ONLINE chip) + remote card status line
+    let lrEl = document.getElementById('lora-display');
+    if (!isOnline) { lrEl.className = 'hchip off-dim'; lrEl.innerHTML = '<i class="fa-solid fa-tower-broadcast" style="font-size:10px;"></i><span>LORA --</span>'; }
+    else if (rmLink) { lrEl.className = 'hchip'; lrEl.innerHTML = '<i class="fa-solid fa-tower-broadcast" style="font-size:10px;"></i><span>LORA ONLINE</span>'; }
+    else { lrEl.className = 'hchip off'; lrEl.innerHTML = '<i class="fa-solid fa-tower-broadcast" style="font-size:10px;"></i><span>LORA LOST</span>'; }
+    document.getElementById('rm-status-line').innerHTML = `PROT ${rmCfgState.enabled?'ENABLED':'DISABLED'} \u00b7 RESUME ${rmCfgState.autoResume!==false?'ON':'OFF'} <i class="fa-solid ${rmDetailOpen?'fa-chevron-up':'fa-chevron-down'}" id="rm-chevron" style="margin-left:3px;"></i>`;
+
+    document.getElementById('val-rem-v').innerHTML = (rmLink && rs.voltage >= 0) ? rs.voltage.toFixed(1) + ' <small>V</small>' : '-- <small>V</small>';
+    document.getElementById('val-rem-c').innerHTML = (rmLink && rs.current >= 0) ? rs.current.toFixed(2) + ' <small>A</small>' : '-- <small>A</small>';
+
+    let toggleRm = document.getElementById('toggle-remote-motor');
+    let cardRm = document.getElementById('card-remote-motor');
+    let statusRm = document.getElementById('status-remote-motor');
+    let timeRm = document.getElementById('time-remote-motor');
+    let fillRm = document.getElementById('progress-remote-motor');
+    let faultRow = document.getElementById('rm-fault-row');
+
+    if (toggleRm && cardRm && statusRm) {
+        toggleRm.classList.toggle('on', rmOn);
+        toggleRm.classList.toggle('disabled', !isOnline || (rmLink && rmFault > 0 && !rmOn));   // fault active -> can't start until cleared
+        faultRow.style.display = (rmLink && (rmFault === 2 || rmFault === 3)) ? 'block' : 'none';   // reset needed only for dry-run / overload
+        statusRm.style.color = "";
+
+        if (!isOnline) {
+            statusRm.innerText = "Master offline"; statusRm.style.color = "var(--red)";
+            cardRm.className = "row"; timeRm.style.display = 'none'; fillRm.style.width = '0%';
+        } else if (rmCmd === 'pending') {
+            statusRm.innerText = "Sending command via LoRa..."; statusRm.style.color = "var(--accent)";
+            cardRm.className = rmOn ? "row on zone-active" : "row";
+        } else if (rmCmd === 'failed' && !rmOn) {
+            statusRm.innerText = "No response from remote node"; statusRm.style.color = "var(--red)";
+            cardRm.className = "row"; timeRm.style.display = 'none'; fillRm.style.width = '0%';
+        } else if (!rmLink) {
+            statusRm.innerText = "Remote link lost (LoRa)"; statusRm.style.color = "var(--red)";
+            cardRm.className = "row"; timeRm.style.display = 'none'; fillRm.style.width = '0%';
+        } else if (rmFault > 0 && !rmOn) {
+            let fTxt = "Fault: " + (rs.faultText || ("code " + rmFault));
+            if (rmFault === 2 || rmFault === 3) fTxt += " \u00b7 reset fault to enable";
+            else if (rs.pendingRemain > 0) fTxt += ` \u00b7 will auto-resume (${Math.floor(rs.pendingRemain/60).toString().padStart(2,'0')}:${(rs.pendingRemain%60).toString().padStart(2,'0')} left)`;
+            else if (rs.pendingRemain < 0) fTxt += " \u00b7 will auto-resume";
+            statusRm.innerText = fTxt; statusRm.style.color = "var(--red)";
+            cardRm.className = "row"; timeRm.style.display = 'none'; fillRm.style.width = '0%';
+        } else if (rmOn) {
+            cardRm.className = "row on zone-active";
+            statusRm.innerText = rmMode === 2 ? "Scheduled Run" : "Manual Run";
+            if (rmRemain > 0) {
+                let tot = (rs.total > 0 && rs.total >= rmRemain) ? rs.total : 0;   // remote node sends the run's real total
+                if (!tot) {
+                    let st = irrProgressState['rm'];
+                    if (!st || rmRemain > st.last + 5) { st = irrProgressState['rm'] = { total: rmRemain, last: rmRemain }; }
+                    st.last = rmRemain; tot = st.total;
+                }
+                fillRm.style.width = Math.min(100, Math.max(0, ((tot - rmRemain) / tot) * 100)) + '%';
+                timeRm.style.display = 'block';
+                timeRm.innerText = `${Math.floor(rmRemain / 60).toString().padStart(2, '0')}:${(rmRemain % 60).toString().padStart(2, '0')}`;
+            } else {
+                fillRm.style.width = '0%';
+                timeRm.style.display = 'block'; timeRm.innerText = 'CONT.';
+                delete irrProgressState['rm'];
+            }
+        } else {
+            cardRm.className = "row";
+            statusRm.innerText = "Standby";
+            fillRm.style.width = '0%'; timeRm.style.display = 'none';
+            delete irrProgressState['rm'];
+        }
+    }
+
+    let protOn = !!(sys.motorConfig && sys.motorConfig.enabled);
+    let resumeEnabled = sys.autoResumeEnabled===true;
+    document.getElementById('pw-status-line').innerHTML = `PROT ${protOn?'ENABLED':'DISABLED'} \u00b7 RESUME ${resumeEnabled?'ON':'OFF'} <i class="fa-solid ${powerDetailOpen?'fa-chevron-up':'fa-chevron-down'}" id="power-chevron" style="margin-left:3px;"></i>`;
+
+    document.getElementById('resume-toggle').checked = resumeEnabled; renderResumeSwitch();
+    let pZone=sys.pendingZone||0, pRemain=sys.pendingRemain||0;
+    let recoveryEl = document.getElementById('recovery-ui');
+    if(pZone>0 && pZone<=ZONE_COUNT){
+      recoveryEl.style.display='flex';
+      document.getElementById('pending-zone-name').innerText = zoneLabels[pZone-1];
+      let m=Math.floor(pRemain/60), s=pRemain%60;
+      document.getElementById('pending-time-left').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} left`;
+    } else { recoveryEl.style.display='none'; }
+
+    // HERO
+    const hero=document.getElementById('hero-card');
+    const upNext = computeUpNext(nowSec);
+    const upNextFert = computeUpNextFert(nowSec);
+
+    if(isPowerFault){
+      hero.className="hero standby";
+      hero.innerHTML = `<div class="sb-title"><span>&#9888;&#65039;</span>POWER FAULT</div><div class="sb-sub">System halted</div><div class="sb-desc">Awaiting grid stabilization or manual reset.</div>`;
+    } else if(isBwActive){
+      if(!document.getElementById('hero-name')){
+        hero.innerHTML = document.getElementById('hero-template').innerHTML;
+      }
+      hero.className="hero";
+      document.getElementById('hero-eyebrow').innerText = "Backwash flushing";
+      document.getElementById('hero-zone-tag').innerText = `FILTER FLUSH`;
+      document.getElementById('hero-name').innerText = "Backwash in progress";
+
+      const ringCircBw = 169.6; 
+      let bwStopVal = sys.bwStop||0;
+      let totalBwSecs = bwDurationMins*60;
+      if(bwStopVal>0 && totalBwSecs>0){
+        let remain = Math.max(bwStopVal-nowSec,0);
+        let elapsed = Math.max(totalBwSecs-remain,0);
+        let pctDone = Math.min(100,Math.max(0,(elapsed/totalBwSecs)*100));
+        document.getElementById('hero-time').innerHTML = `${Math.floor(remain/60).toString().padStart(2,'0')}:${(remain%60).toString().padStart(2,'0')}<span>left</span>`;
+        document.getElementById('hero-pct').innerText = Math.round(pctDone)+'%';
+        let ringFill=document.getElementById('hero-ring-fill');
+        if(ringFill) ringFill.style.strokeDashoffset = (ringCircBw - (pctDone/100)*ringCircBw);
+      } else {
+        document.getElementById('hero-time').innerHTML = `--:--<span>left</span>`;
+        document.getElementById('hero-pct').innerText = '--';
+        let ringFill=document.getElementById('hero-ring-fill');
+        if(ringFill) ringFill.style.strokeDashoffset = ringCircBw;
+      }
+
+      let pumpTagBw=document.getElementById('hero-pump-tag');
+      pumpTagBw.className = 'h-tag live';
+      pumpTagBw.innerHTML = '<span class="mini-dot"></span>Pump running';
+      let fertTagBw=document.getElementById('hero-fert-tag');
+      fertTagBw.className = 'h-tag';
+      fertTagBw.innerText = 'Zones paused';
+
+      let nextLblBw=document.getElementById('hero-next-lbl'), nextNameBw=document.getElementById('hero-next-name');
+      if(upNext){ nextLblBw.innerText = `Up next \u00b7 ${upNext.timeLabel}`; nextNameBw.innerText = upNext.zoneName; }
+      else { nextLblBw.innerText = 'Up next'; nextNameBw.innerText = 'No more runs today'; }
+    } else if(displayIrrZone>0){
+      if(!document.getElementById('hero-name')){
+        hero.innerHTML = document.getElementById('hero-template').innerHTML;
+      }
+      hero.className="hero";
+      document.getElementById('hero-eyebrow').innerText = "Now irrigating";
+      document.getElementById('hero-zone-tag').innerText = `ZONE ${String(displayIrrZone).padStart(2,'0')}`;
+      document.getElementById('hero-name').innerText = zoneLabels[displayIrrZone-1];
+
+      const ringCirc = 169.6; 
+      if(irrStop>0){
+        let pr = calcProgress(irrProgressState, displayIrrZone, irrStop, sys.activeIrrTotal||0, nowSec);
+        let remain = pr.remain;
+        let pctDone = pr.pct;
+        document.getElementById('hero-time').innerHTML = `${Math.floor(remain/60).toString().padStart(2,'0')}:${(remain%60).toString().padStart(2,'0')}<span>left</span>`;
+        document.getElementById('hero-pct').innerText = Math.round(pctDone)+'%';
+        let ringFill=document.getElementById('hero-ring-fill');
+        if(ringFill) ringFill.style.strokeDashoffset = (ringCirc - (pctDone/100)*ringCirc);
+      } else {
+        document.getElementById('hero-time').innerHTML = `CONT.<span>no timer</span>`;
+        document.getElementById('hero-pct').innerText = '--';
+        let ringFill=document.getElementById('hero-ring-fill');
+        if(ringFill) ringFill.style.strokeDashoffset = ringCirc;
+        delete irrProgressState[displayIrrZone];
+      }
+
+      let pumpTag=document.getElementById('hero-pump-tag');
+      pumpTag.className = p1Active?'h-tag live':'h-tag';
+      pumpTag.innerHTML = p1Active?'<span class="mini-dot"></span>Pump running':'Pump idle';
+      let fertTag=document.getElementById('hero-fert-tag');
+      fertTag.className = displayFertZone>0?'h-tag live':'h-tag';
+      fertTag.innerText = displayFertZone>0?'Fertigation active':'Fertigation idle';
+
+      let nextLbl=document.getElementById('hero-next-lbl'), nextName=document.getElementById('hero-next-name');
+      if(upNext){ nextLbl.innerText = `Up next \u00b7 ${upNext.timeLabel}`; nextName.innerText = upNext.zoneName; }
+      else { nextLbl.innerText = 'Up next'; nextName.innerText = 'No more runs today'; }
+    } else {
+      hero.className="hero standby";
+      let nextInfo = upNext ? `<div class="sb-desc">Up next: <strong style="color:var(--hero-text)">${upNext.zoneName}</strong> at ${upNext.timeLabel}</div>` : `<div class="sb-desc">No further runs scheduled today.</div>`;
+      hero.innerHTML = `<div class="sb-title"><div class="dot"></div>STANDBY</div><div class="sb-sub">All zones idle</div>${nextInfo}`;
+    }
+
+    // ZONES
+    for(let i=1;i<=ZONE_COUNT;i++){
+      let isActive = (displayIrrZone===i);
+      let isNext = (!isActive && upNext && upNext.zoneIdx===(i-1));
+      let toggle=document.getElementById(`toggle-irr-${i}`);
+      toggle.classList.toggle('on', isActive);
+      toggle.classList.toggle('disabled', isPowerFault||isBwActive);
+      let card=document.getElementById(`card-irr-${i}`);
+      let wasHidden=card.classList.contains('zone-hidden');
+      card.className = "row" + (isActive?" on zone-active":isNext?" zone-next":"");
+      if(wasHidden) card.classList.add('zone-hidden');
+      let statusEl=document.getElementById(`status-irr-${i}`);
+      let timeEl=document.getElementById(`time-irr-${i}`);
+      if(isPowerFault){ statusEl.innerText="Power fault"; statusEl.style.color="var(--red)"; }
+      else if(isActive){ statusEl.innerText = "Irrigating now"; statusEl.style.color=""; }
+      else if(isNext){ statusEl.innerText = `Up next \u00b7 ${upNext.timeLabel}`; statusEl.style.color=""; }
+      else {
+        let nt = getNextRunTimeForZone(i-1, nowSec);
+        statusEl.innerText = nt ? `Standby \u00b7 next ${new Date(nt*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}` : "Standby";
+        statusEl.style.color="";
+      }
+      let fillEl=document.getElementById(`progress-irr-${i}`);
+      if(isActive && irrStop>0){
+        {
+          let pr = calcProgress(irrProgressState, displayIrrZone, irrStop, sys.activeIrrTotal||0, nowSec);
+          fillEl.style.width=pr.pct+'%';
+          let remain = pr.remain;
+          timeEl.style.display='block';
+          timeEl.innerText = `${Math.floor(remain/60).toString().padStart(2,'0')}:${(remain%60).toString().padStart(2,'0')}`;
+        }
+      } else { fillEl.style.width='0%'; timeEl.style.display='none'; }
+    }
+    // FERTS
+    let disableFerts = (displayIrrZone===0 || isBwActive || isPowerFault);
+    for(let i=1;i<=FERT_COUNT;i++){
+      let isActive=(displayFertZone===i);
+      let isNext = (!isActive && upNextFert && upNextFert.fertIdx===i);
+      let toggle=document.getElementById(`toggle-fert-${i}`);
+      toggle.classList.toggle('on', isActive);
+      toggle.classList.toggle('disabled', disableFerts);
+      let card=document.getElementById(`card-fert-${i}`);
+      let wasHidden=card.classList.contains('zone-hidden');
+      card.className = "row fert" + (isActive?" on zone-active":isNext?" zone-next":"");
+      if(wasHidden) card.classList.add('zone-hidden');
+      let statusEl=document.getElementById(`status-fert-${i}`);
+      let timeEl=document.getElementById(`time-fert-${i}`);
+      if(disableFerts && !isNext) statusEl.innerText = isPowerFault?"Power fault":"Disabled";
+      else if(isActive) statusEl.innerText = `Injecting into Z${String(displayIrrZone).padStart(2,'0')}`;
+      else if(isNext) statusEl.innerText = `Up next \u00b7 ${upNextFert.timeLabel}`;
+      else statusEl.innerText = "Standby";
+      let fillEl=document.getElementById(`progress-fert-${i}`);
+      if(isActive && fertStop>0){
+        let pr = calcProgress(fertProgressState, i, fertStop, sys.activeFertTotal||0, nowSec);
+        fillEl.style.width=pr.pct+'%';
+        let remain = pr.remain;
+        timeEl.style.display='block';
+        timeEl.innerText = `${Math.floor(remain/60).toString().padStart(2,'0')}:${(remain%60).toString().padStart(2,'0')}`;
+      } else { fillEl.style.width='0%'; timeEl.style.display='none'; delete fertProgressState[i]; }
+    }
+    let activeCount = (displayIrrZone>0?1:0) + (displayFertZone>0?1:0);
+    document.getElementById('live-count').innerText = `${activeCount} ACTIVE`;
+
+  },1000);
+}
+
+/* ===================== INTERACTION HANDLERS ===================== */
+function handleManualIrrClick(zoneNum){
+  let toggle=document.getElementById(`toggle-irr-${zoneNum}`);
+  if(toggle.classList.contains('disabled')) return;
+  if(!toggle.classList.contains('on')){
+    pendingManualType="irr"; pendingManualId=zoneNum;
+    document.getElementById('manualTimerTitle').innerText=`Engage ${zoneLabels[zoneNum-1]}`;
+    document.getElementById('manualTimerDesc').innerText=`Enter override duration in minutes. (0 = continuous)`;
+    document.getElementById('manualTimerMins').value="10";
+    document.getElementById('manualTimerOverlay').style.display="flex";
+    document.querySelector('.bar-btm').style.display='none';
+  } else db.ref('system').update({ manualIrrZone:0, manualIrrMins:0, activeIrrStop:0 });
+}
+function handleManualFertClick(compNum){
+  let toggle=document.getElementById(`toggle-fert-${compNum}`);
+  if(toggle.classList.contains('disabled')) return;
+  if(!currentSysState.activeIrrZone && !currentSysState.manualIrrZone) return;
+  if(!toggle.classList.contains('on')){
+    pendingManualType="fert"; pendingManualId=compNum;
+    document.getElementById('manualTimerTitle').innerText=`Engage ${fertLabels[compNum-1]}`;
+    document.getElementById('manualTimerDesc').innerText=`Timer will synchronize with active water limits.`;
+    document.getElementById('manualTimerMins').value="5";
+    document.getElementById('manualTimerOverlay').style.display="flex";
+    document.querySelector('.bar-btm').style.display='none';
+  } else db.ref('system').update({ manualFertZone:0, manualFertMins:0, activeFertStop:0 });
+}
+
+// Remote Motor Manual Action (Now uses Timer Modal)
+function handleManualRemoteMotorClick() {
+  let toggle = document.getElementById('toggle-remote-motor');
+  if(toggle.classList.contains('disabled')) return;
+  if(!toggle.classList.contains('on')){
+    pendingManualType="rm";
+    document.getElementById('manualTimerTitle').innerText=`Engage Remote Motor`;
+    document.getElementById('manualTimerDesc').innerText=`Enter run duration in minutes. (0 = continuous)`;
+    document.getElementById('manualTimerMins').value="30";
+    document.getElementById('manualTimerOverlay').style.display="flex";
+    document.querySelector('.bar-btm').style.display='none';
+  } else {
+    db.ref('remoteCtl').update({ motor: false, motorMins: 0, stopNow: true });
+  }
+}
+
+function resetRemoteFault() {
+  db.ref('remoteCtl/resetFault').set(true);
+}
+
+function saveRemoteMotorSchedule() {
+  let tv = document.getElementById('rm-sched-time').value;
+  let h = parseInt(tv.split(':')[0]), m = parseInt(tv.split(':')[1]), mask = 0;
+  document.querySelectorAll('.rm-day:checked').forEach(cb => mask += parseInt(cb.value));
+  let dur = parseInt(document.getElementById('rm-sched-dur').value) || 0;
+  let active = document.getElementById('rm-sched-toggle').checked;
+  if (active && (mask === 0 || dur < 1)) { alert("Select at least 1 day and a duration of 1+ minutes."); return; }
+  if (dur > 720) { alert("Maximum duration is 720 minutes."); return; }
+  db.ref('remoteCtl/schedule/slot_0').set({
+      active: active,
+      hour: h,
+      minute: m,
+      durationMins: dur,
+      days: mask
+  }).then(() => alert("Remote Motor schedule saved. It will be sent to the remote node over LoRa within a minute."));
+}
+
+function cancelManualTimer(){
+  document.getElementById('manualTimerOverlay').style.display="none";
+  let hubOpen = document.getElementById('scheduleHubModal').style.display==='block';
+  if(!hubOpen) document.querySelector('.bar-btm').style.display='flex';
+}
+function confirmManualTimer(){
+  let mins=parseInt(document.getElementById('manualTimerMins').value)||0;
+  if(pendingManualType==="irr") db.ref('system').update({ manualIrrZone:pendingManualId, manualIrrMins:mins, activeIrrStop:0 });
+  else if(pendingManualType==="fert") db.ref('system').update({ manualFertZone:pendingManualId, manualFertMins:mins, activeFertStop:0 });
+  else if(pendingManualType==="rm") db.ref('remoteCtl').update({ motorMins:mins, stopNow:false, motor:true });   // mins = 0 -> ടോഗിൾ ഓഫ് ചെയ്യുംവരെ ഓടും
+  else if(pendingManualType==="backwash"){
+    if(mins<1) mins=1;
+    db.ref('system').update({ manualBackwashDurationMins: mins, manualBackwashTrigger: true });
+  }
+  cancelManualTimer();
+}
+function triggerManualEmergencyStop(){
+  document.getElementById('confirmEStopOverlay').style.display='flex';
+}
+function confirmEmergencyStop(){
+  document.getElementById('confirmEStopOverlay').style.display='none';
+  db.ref('system').update({ emergencyStop:true });
+}
+function clearEmergencyStop(){
+  db.ref('system').update({ emergencyStop:false, lastTripReason:0 }).then(()=>{ document.getElementById('criticalAlertOverlay').style.display='none'; });
+}
+function showRestartConfirm(){
+  document.getElementById('confirmRestartOverlay').style.display='flex';
+}
+function confirmRestartDevice(){
+  document.getElementById('confirmRestartOverlay').style.display='none';
+  db.ref('system/restartDevice').set(true).then(()=>alert("Restart requested \u2014 the controller should reboot within a few seconds."));
+}
+
+function openScheduleHub(){ document.getElementById('scheduleHubModal').style.display='block'; document.querySelector('.bar-btm').style.display='none'; }
+function closeScheduleHub(){ document.getElementById('scheduleHubModal').style.display='none'; document.querySelector('.bar-btm').style.display='flex'; }
+function toggleScheduleActive(key,isActive){ db.ref(`schedules/${key}/active`).set(isActive); }
+function deleteSchedule(key){ if(confirm("Permanently delete this automation?")) db.ref(`schedules/${key}`).remove(); }
+function clearWateringHistory(){ if(confirm("Permanently delete all watering history? This cannot be undone.")) db.ref('history').remove(); }
+
+function renderWeeklySummary(entries){
+  let weekAgo = Math.floor(Date.now()/1000) - 7*86400;
+  let recent = entries.filter(e=>(e.startTime||0) >= weekAgo);
+  let totalMins = recent.reduce((sum,e)=>sum+(e.durationMins||0),0);
+  let zonesUsed = new Set(recent.map(e=>e.zone).filter(z=>z)).size;
+  let interrupted = recent.filter(e=>e.completed===false).length;
+  document.getElementById('wk-total-mins').innerText = totalMins;
+  document.getElementById('wk-zones-used').innerText = zonesUsed;
+  document.getElementById('wk-interrupted').innerText = interrupted;
+}
+
+function renderHistoryChart(entries){
+  const zoneColors = ['#3b82f6','#f59e0b','#10b981','#ef4444','#8b5cf6','#ec4899'];
+  const days = [];
+  const today = new Date();
+  for(let i=6;i>=0;i--){
+    let d = new Date(today); d.setDate(d.getDate()-i); d.setHours(0,0,0,0);
+    days.push({ dateKey: d.toDateString(), label: d.toLocaleDateString('en-US',{weekday:'short'}), zoneMinutes:{}, total:0 });
+  }
+  entries.forEach(e=>{
+    if(!e.startTime || !e.zone) return;
+    let d = new Date(e.startTime*1000); d.setHours(0,0,0,0);
+    let key = d.toDateString();
+    let bucket = days.find(b=>b.dateKey===key);
+    if(!bucket) return;
+    bucket.zoneMinutes[e.zone] = (bucket.zoneMinutes[e.zone]||0) + (e.durationMins||0);
+    bucket.total += (e.durationMins||0);
+  });
+  const maxTotal = Math.max(1, ...days.map(d=>d.total));
+  const chartH = 120, barW = 26, gap = 14, leftPad = 8;
+  let svg = `<svg viewBox="0 0 ${leftPad*2 + 7*(barW+gap) - gap} ${chartH+22}" width="100%" preserveAspectRatio="xMidYMid meet">`;
+  days.forEach((d,idx)=>{
+    let x = leftPad + idx*(barW+gap);
+    let yCursor = chartH;
+    let comps = Object.keys(d.zoneMinutes);
+    if(comps.length===0){
+      svg += `<rect x="${x}" y="${chartH-2}" width="${barW}" height="2" rx="1" fill="var(--border)"/>`;
+    } else {
+      comps.forEach(zKey=>{
+        let mins = d.zoneMinutes[zKey];
+        let segH = Math.max(2,(mins/maxTotal)*chartH);
+        let color = zoneColors[(zKey-1)%zoneColors.length];
+        svg += `<rect x="${x}" y="${yCursor-segH}" width="${barW}" height="${segH}" rx="3" fill="${color}"/>`;
+        yCursor -= segH;
+      });
+    }
+    svg += `<text x="${x+barW/2}" y="${chartH+16}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--faint)">${d.label}</text>`;
+  });
+  svg += `</svg>`;
+  document.getElementById('history-chart').innerHTML = svg;
+
+  let usedZones = new Set();
+  days.forEach(d=>Object.keys(d.zoneMinutes).forEach(z=>usedZones.add(z)));
+  let legendHtml = Array.from(usedZones).sort((a,b)=>a-b).map(z=>{
+    let zName = zoneLabels[z-1]||`Zone ${z}`;
+    let color = zoneColors[(z-1)%zoneColors.length];
+    return `<span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--muted);margin-right:12px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:2px;background:${color};display:inline-block;flex-shrink:0;"></span>${zName}</span>`;
+  }).join('');
+  document.getElementById('history-chart-legend').innerHTML = legendHtml || '<span style="font-size:10px;color:var(--faint);">No watering logged yet</span>';
+}
+
+function exportHistoryCSV(){
+  db.ref('history').once('value').then(snap=>{
+    let data = snap.val()||{};
+    let entries = Object.keys(data).map(k=>data[k]);
+    if(entries.length===0){ alert('No history to export yet.'); return; }
+    entries.sort((a,b)=>(a.startTime||0)-(b.startTime||0));
+    let rows = [['Zone','Start Time','Duration (min)','Completed','Fertilizer Used']];
+    entries.forEach(e=>{
+      let zName = (e.zone>=1 && e.zone<=ZONE_COUNT) ? zoneLabels[e.zone-1] : `Zone ${e.zone||'?'}`;
+      let dt = e.startTime ? new Date(e.startTime*1000).toLocaleString() : '';
+      let fertStr = (e.fertUsed||[]).map(c=>fertLabels[c-1]||`C${c}`).join('; ');
+      rows.push([zName, dt, e.durationMins||0, e.completed===false?'No':'Yes', fertStr]);
+    });
+    let csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    let blob = new Blob([csv], {type:'text/csv'});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url; a.download = `watering-history-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+}
+function togglePowerTelemetry(){
+  powerDetailOpen = !powerDetailOpen;
+  document.getElementById('power-body').style.display = powerDetailOpen ? 'block' : 'none';
+  document.getElementById('power-chevron').className = powerDetailOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+}
+
+function toggleRmTelemetry(){
+  rmDetailOpen = !rmDetailOpen;
+  document.getElementById('rm-power-body').style.display = rmDetailOpen ? 'block' : 'none';
+  document.getElementById('rm-chevron').className = rmDetailOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+}
+let rmSchedOpen = true;
+function toggleRmSchedule(){
+  rmSchedOpen = !rmSchedOpen;
+  document.getElementById('rm-sched-body').style.display = rmSchedOpen ? 'block' : 'none';
+  document.getElementById('rm-sched-chevron').className = rmSchedOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+  let h = document.getElementById('rm-sched-head');
+  h.style.marginBottom = rmSchedOpen ? '' : '0'; h.style.borderBottom = rmSchedOpen ? '' : 'none'; h.style.paddingBottom = rmSchedOpen ? '' : '0';
+}
+
+let powerTrendOpen = false;
+function togglePowerTrend(){
+  powerTrendOpen = !powerTrendOpen;
+  document.getElementById('trend-body').style.display = powerTrendOpen ? 'block' : 'none';
+  document.getElementById('trend-chevron').className = powerTrendOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+  if(powerTrendOpen) loadPowerTrend();
+}
+function loadPowerTrend(){
+  document.getElementById('power-trend-chart').innerHTML = '<p style="text-align:center;color:var(--faint);font-size:11px;padding:20px 0;">Loading...</p>';
+  db.ref('telemetry').limitToLast(150).once('value').then(snap=>{
+    let data = snap.val()||{};
+    let entries = Object.keys(data).map(k=>data[k]);
+    entries.sort((a,b)=>(a.t||0)-(b.t||0));
+    renderPowerTrendChart(entries);
+  }).catch(()=>{
+    document.getElementById('power-trend-chart').innerHTML = '<p style="text-align:center;color:var(--faint);font-size:11px;padding:20px 0;">Could not load trend data.</p>';
+  });
+}
+
+function pruneOldTelemetry(manual){
+  let days = parseInt(document.getElementById('telemetry-retain-days').value) || 7;
+  let cutoff = Math.floor(Date.now()/1000) - days*86400;
+  db.ref('telemetry').orderByChild('t').endAt(cutoff).once('value').then(snap=>{
+    let data = snap.val();
+    let keys = data ? Object.keys(data) : [];
+    if(keys.length===0){
+      if(manual) alert('No old telemetry entries to remove.');
+      return;
+    }
+    let updates = {};
+    keys.forEach(k=>{ updates[k] = null; });
+    db.ref('telemetry').update(updates).then(()=>{
+      if(manual) alert(`Removed ${keys.length} telemetry entr${keys.length===1?'y':'ies'} older than ${days} day${days===1?'':'s'}.`);
+    });
+  }).catch(()=>{
+    if(manual) alert('Could not prune telemetry \u2014 check your internet connection.');
+  });
+}
+function autoPruneIfDue(){
+  let lastPrune = localStorage.getItem('sipLastTelemetryPrune');
+  let now = Date.now();
+  if(!lastPrune || (now - parseInt(lastPrune)) > 24*3600*1000){
+    pruneOldTelemetry(false);
+    localStorage.setItem('sipLastTelemetryPrune', String(now));
+  }
+}
+function renderPowerTrendChart(entries){
+  const chartDiv = document.getElementById('power-trend-chart');
+  if(entries.length < 2){
+    chartDiv.innerHTML = '<p style="text-align:center;color:var(--faint);font-size:11px;padding:20px 0;line-height:1.5;">Not enough data yet.</p>';
+    return;
+  }
+  const w = 300, h = 110, pad = 4;
+  let allV = [];
+  entries.forEach(e=>{ [e.vry,e.vyb,e.vbr].forEach(v=>{ if(v>0) allV.push(v); }); });
+  let maxV = Math.max(...(allV.length?allV:[250]), 250), minV = Math.min(...(allV.length?allV:[190]), 190);
+  let maxA = Math.max(...entries.map(e=>e.amps||0), 1);
+  function xFor(idx){ return pad + (idx/(entries.length-1))*(w-2*pad); }
+  function yForV(v){ return h - ((v-minV)/((maxV-minV)||1))*h; }
+  function yForA(a){ return h - (a/maxA)*h; }
+  function lineFor(key, yFn, color, dash){
+    let pts = entries.map((e,idx)=> (e[key]>0) ? `${xFor(idx).toFixed(1)},${yFn(e[key]).toFixed(1)}` : null).filter(p=>p);
+    if(pts.length<2) return '';
+    return `<polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.8" ${dash?'stroke-dasharray="3,2"':''} stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  let svg = `<svg viewBox="0 0 ${w} ${h+16}" width="100%" preserveAspectRatio="xMidYMid meet">`;
+  svg += lineFor('vry', yForV, 'var(--ph-r)');
+  svg += lineFor('vyb', yForV, 'var(--ph-y)');
+  svg += lineFor('vbr', yForV, 'var(--ph-b)');
+  svg += lineFor('amps', yForA, 'var(--green)', true);
+  let firstLabel = entries[0].t ? new Date(entries[0].t*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
+  let lastLabel = entries[entries.length-1].t ? new Date(entries[entries.length-1].t*1000).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
+  svg += `<text x="0" y="${h+13}" font-size="9" fill="var(--faint)">${firstLabel}</text>`;
+  svg += `<text x="${w}" y="${h+13}" font-size="9" fill="var(--faint)" text-anchor="end">${lastLabel}</text>`;
+  svg += `</svg>`;
+  chartDiv.innerHTML = svg;
+}
+
+function saveProtectionLimits(){
+  let c={ enabled: document.getElementById('prot-toggle').checked, minV: parseFloat(document.getElementById('prot-min-v').value)||190, maxV: parseFloat(document.getElementById('prot-max-v').value)||250, minA: parseFloat(document.getElementById('prot-min-a').value)||1.0, maxA: parseFloat(document.getElementById('prot-max-a').value)||10.0 };
+  db.ref('system/motorConfig').set(c).then(()=>alert("Protection limits saved."));
+}
+
+function saveRmProtectionLimits(){
+  let c={ enabled: document.getElementById('rm-prot-toggle').checked, minV: parseFloat(document.getElementById('rm-prot-min-v').value)||180, maxV: parseFloat(document.getElementById('rm-prot-max-v').value)||250, minA: parseFloat(document.getElementById('rm-prot-min-a').value)||1.0, maxA: parseFloat(document.getElementById('rm-prot-max-a').value)||15.0, autoResume: document.getElementById('rm-resume-toggle').checked };
+  db.ref('remoteCtl/config').set(c).then(()=>alert("Remote Motor Protection limits saved. They will be sent to the remote node over LoRa within a minute."));
+}
+
+function saveBackwashConfig(){
+  let tv=document.getElementById('bw-time').value;
+  let h=parseInt(tv.split(':')[0]), m=parseInt(tv.split(':')[1]), mask=0;
+  document.querySelectorAll('.bw-day:checked').forEach(cb=>mask+=parseInt(cb.value));
+  db.ref('schedules/backwash').set({ active: document.getElementById('bw-toggle').checked, hour:h, minute:m, durationMins: parseInt(document.getElementById('bw-dur').value), days: mask }).then(()=>alert("Backwash schedule saved."));
+}
+function runBackwashNow(){
+  pendingManualType="backwash"; pendingManualId=0;
+  document.getElementById('manualTimerTitle').innerText="Run backwash now";
+  document.getElementById('manualTimerDesc').innerText="Zones and fertilizer will stay paused until this finishes. Enter how many minutes to flush for.";
+  document.getElementById('manualTimerMins').value=String(bwDurationMins||5);
+  document.getElementById('manualTimerOverlay').style.display="flex";
+}
+function applyWaterBudget(){
+  let pct = parseInt(document.getElementById('water-budget-slider').value);
+  db.ref('system/waterBudgetPercent').set(pct).then(()=>alert(`Water budget set to ${pct}%. New runs will use this scaling.`));
+}
+function saveSystemLabels(){
+  let z=[],f=[];
+  for(let i=0;i<ZONE_COUNT;i++) z.push(document.getElementById(`z-rename-${i}`).value || `Zone ${i+1}`);
+  for(let i=0;i<FERT_COUNT;i++) f.push(document.getElementById(`f-rename-${i}`).value || `Compartment ${i+1}`);
+  let loc = document.getElementById('loc-search-input').value || '';
+  db.ref('system/labels').update({ zones:z, ferts:f, location:loc }).then(()=>alert("Location & labels saved."));
+}
+function saveVisibility(){
+  let ze=[], fe=[];
+  for(let i=0;i<ZONE_COUNT;i++) ze.push(document.getElementById(`vis-z-${i}`).checked);
+  for(let i=0;i<FERT_COUNT;i++) fe.push(document.getElementById(`vis-f-${i}`).checked);
+  db.ref('system/labels').update({ zoneEnabled: ze, fertEnabled: fe }).then(()=>alert("Pins saved."));
+}
+
+function resetScheduleForm(){
+  document.getElementById('start-times-container').innerHTML=""; startTimesCount=0; addStartTime();
+  document.querySelectorAll('.m-day').forEach(cb=>cb.checked=false);
+  for(let z=0;z<ZONE_COUNT;z++){ document.getElementById(`z-irrDur-${z}`).value=0; document.getElementById(`fert-container-${z}`).innerHTML=""; fertCounts[z]=0; }
+}
+function openScheduleCreator(){ editingSlotKey=null; document.getElementById('scheduleModalTitle').innerText="New automation"; resetScheduleForm(); document.getElementById('scheduleCreatorModal').style.display='block'; }
+function closeScheduleCreator(){ document.getElementById('scheduleCreatorModal').style.display='none'; }
+function openScheduleEditor(key){
+  let sched=localSchedules[key]; if(!sched) return;
+  editingSlotKey=key; document.getElementById('scheduleModalTitle').innerText="Modify automation"; resetScheduleForm();
+  document.getElementById('start-times-container').innerHTML=""; startTimesCount=0;
+  if(sched.starts && sched.starts.length>0){ sched.starts.forEach(st=>{ if(st) addStartTime(st.hour, st.minute); }); } else { addStartTime(sched.hour||6, sched.minute||0); }
+  document.querySelectorAll('.m-day').forEach(cb=>cb.checked=((sched.days & parseInt(cb.value))!==0));
+  for(let z=0;z<ZONE_COUNT;z++){
+    if(sched.zones && sched.zones[z]){
+      document.getElementById(`z-irrDur-${z}`).value = sched.zones[z].waterMins||0;
+      if(sched.zones[z].ferts){
+        sched.zones[z].ferts.forEach((fert)=>{
+          addFertRow(z); let rowId=fertCounts[z]-1;
+          document.getElementById(`sel-comp-${z}-${rowId}`).value=fert.comp;
+          document.getElementById(`sel-mins-${z}-${rowId}`).value=fert.mins;
+          document.getElementById(`sel-time-${z}-${rowId}`).value=`${String(fert.startHour||0).padStart(2,'0')}:${String(fert.startMinute||0).padStart(2,'0')}`;
+          document.querySelectorAll(`.f-day-${z}-${rowId}`).forEach(cb=>cb.checked=((fert.days & parseInt(cb.value))!==0));
+        });
+      }
+    }
+  }
+  document.getElementById('scheduleCreatorModal').style.display='block';
+}
+function saveSchedule(){
+  let starts=[];
+  for(let i=0;i<5;i++){ let el=document.getElementById(`st-time-${i}`); if(el && el.value){ let p=el.value.split(':'); starts.push({hour:parseInt(p[0]),minute:parseInt(p[1])}); } }
+  if(starts.length===0){ alert("At least one execution time required."); return; }
+  let mMask=0; document.querySelectorAll('.m-day:checked').forEach(cb=>mMask+=parseInt(cb.value));
+  if(mMask===0){ alert("Select at least 1 execution day."); return; }
+  let sData={ active:true, starts:starts, days:mMask, zones:[] };
+  for(let z=0;z<ZONE_COUNT;z++){
+    let zoneObj={ waterMins: parseInt(document.getElementById(`z-irrDur-${z}`).value)||0 };
+    let validFerts=[];
+    for(let f=0;f<fertCounts[z];f++){
+      let compEl=document.getElementById(`sel-comp-${z}-${f}`); if(!compEl) continue;
+      let tv=document.getElementById(`sel-time-${z}-${f}`).value; let sh=0, sm=0;
+      if(tv){ sh=parseInt(tv.split(':')[0]); sm=parseInt(tv.split(':')[1]); } else continue;
+      let fMask=0; document.querySelectorAll(`.f-day-${z}-${f}:checked`).forEach(cb=>fMask+=parseInt(cb.value));
+      validFerts.push({ comp:parseInt(compEl.value), startHour:sh, startMinute:sm, mins:parseInt(document.getElementById(`sel-mins-${z}-${f}`).value)||0, days:fMask });
+    }
+    if(validFerts.length>0) zoneObj.ferts=validFerts;
+    sData.zones.push(zoneObj);
+  }
+  let targetKey=editingSlotKey;
+  if(!targetKey){
+    let obj=localSchedules||{};
+    for(let i=0;i<3;i++){ if(!obj['slot_'+i]){ targetKey='slot_'+i; break; } }
+    if(!targetKey){ alert("Max slots reached."); return; }
+  }
+  db.ref(`schedules/${targetKey}`).set(sData).then(()=>{ closeScheduleCreator(); });
+}
+</script>
+
+<template id="hero-template">
+  <div class="h-row">
+    <div>
+      <div class="h-eyebrow"><div class="dot"></div><span id="hero-eyebrow">Now irrigating</span></div>
+      <div class="h-zone" id="hero-zone-tag">ZONE 03</div>
+      <div class="h-name" id="hero-name">Coconut block 1</div>
+      <div class="h-tags">
+        <div class="h-tag live" id="hero-pump-tag"><span class="mini-dot"></span>Pump running</div>
+        <div class="h-tag" id="hero-fert-tag">Fertigation idle</div>
+      </div>
+    </div>
+    <div class="ring-w" id="hero-ring-wrap">
+      <svg width="64" height="64"><circle cx="32" cy="32" r="27" stroke="rgba(255,255,255,0.14)" stroke-width="5.5" fill="none"/><circle id="hero-ring-fill" cx="32" cy="32" r="27" stroke="var(--hero-accent)" stroke-width="5.5" fill="none" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke-linecap="round"/></svg>
+      <div class="ring-t"><div class="p" id="hero-pct">0%</div><div class="q">done</div></div>
+    </div>
+  </div>
+  <div class="h-foot" id="hero-foot">
+    <div class="h-time" id="hero-time">00:00<span>left</span></div>
+    <div class="h-next"><div class="l" id="hero-next-lbl">Up next</div><div class="v" id="hero-next-name">--</div></div>
+  </div>
+</template>
+<script>
+/* PWA: service worker (ഇൻസ്റ്റാൾ ചെയ്യാൻ Chrome-ന് ആവശ്യം) */
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(e){ console.warn('SW register failed', e); }); });
+}
+</script>
+</body>
+</html>
