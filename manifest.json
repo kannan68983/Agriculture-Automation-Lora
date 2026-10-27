@@ -1,6 +1,6 @@
 {
   "name": "SIP Console",
-  "short_name": "SIP",
+  "short_name": "NVS farm pump controll",
   "description": "SIP irrigation & fertigation controller",
   "start_url": "./",
   "scope": "./",
